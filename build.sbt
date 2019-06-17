@@ -111,6 +111,8 @@ lazy val dependencies = {
   val scodecBitsVersion = "1.1.9"
 
   val deps = libraryDependencies ++= Seq(
+    // TODO separate module for derivation,
+    "org.typelevel" %% "kittens" % "1.2.1",
     "org.http4s" %% "http4s-core" % http4sVersion,
     "org.http4s" %% "http4s-client" % http4sVersion,
     "co.fs2" %% "fs2-core" % fs2Version,
@@ -120,6 +122,7 @@ lazy val dependencies = {
     "org.scodec" %% "scodec-bits" % scodecBitsVersion,
     "org.typelevel" %% "cats-free" % catsVersion,
     "io.circe" %% "circe-core" % circeVersion,
+    // TODO do we want a shapeless dependency in core?
     "io.circe" %% "circe-generic" % circeVersion,
     "io.circe" %% "circe-parser" % circeVersion,
     "io.circe" %% "circe-literal" % circeVersion,

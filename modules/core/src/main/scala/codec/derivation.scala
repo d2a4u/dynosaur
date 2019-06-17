@@ -41,12 +41,12 @@ only ints and strings as fields
   //   implicit def hnil[A]: GetField[HNil, A]
   // }
 
-  trait GetFields[In <: HList] {
+  trait GetFields[In] {
     type Out
     def fields: Out
   }
   object GetFields {
-    type Aux[I <: HList, O] = GetFields[I] { type Out = O }
+    type Aux[I, O] = GetFields[I] { type Out = O }
 
     implicit def hnil: GetFields.Aux[HNil, HNil] = new GetFields[HNil] {
       type Out = HNil
@@ -70,32 +70,23 @@ only ints and strings as fields
           ) :: rest.fields
       }
 
-    // implicit def generic[T, Repr <: HList, O <: HList](
-    //     implicit gen: LabelledGeneric.Aux[T, Repr],
-    //     fields: GetFields.Aux[Repr, O],
-    //     builder: Traverser.Aux[O, selectFields.type, Ap[Field[Repr, ?], T]]
-    // ) = ???
+    implicit def generic[T, Repr <: HList, O <: HList, R](
+        implicit gen: LabelledGeneric.Aux[T, Repr],
+        getFields: GetFields.Aux[Repr, O],
+        builder: Traverser.Aux[O, selectFields.type, Ap[Field[Repr, ?], R]]
+    ): GetFields.Aux[T, Ap[Field[Repr, ?], R]] = new GetFields[T] {
+      type Out = Ap[Field[Repr, ?], R]
 
-    // object selectFields extends Poly1 {
-    //   implicit def all[R, E]: Case.Aux[Field[R, E], Ap[Field[R, ?], E]] = ???
-    // }
+      def fields: Out =
+        getFields.fields.traverse(selectFields) // .map(x => gen.from(x))
+    }
 
-    //    Traverser.Aux[Repr, selectFields.type, Reader[Set[String], O]]
-
-    // object selectFields extends Poly1 {
-    //   implicit def caseField[K <: Symbol, V](implicit key: Witness.Aux[K])
-    //     : Case.Aux[FieldType[K, V],
-    //                Reader[Set[String], FieldType[K, Option[V]]]] =
-    //     at[FieldType[K, V]] { v =>
-    //       Reader { (fields: Set[String]) =>
-    //         field[K] {
-    //           if (fields contains key.value.name) Some(v)
-    //           else None
-    //         }
-    //       }
-    //     }
-    // }
-
+    object selectFields extends Poly1 {
+      implicit def all[R, E]: Case.Aux[Field[R, E], Ap[Field[R, ?], E]] = at {
+        f =>
+          Ap.lift(f)
+      }
+    }
   }
 
   implicit def ints: Schema[Int] = Schema.num
@@ -111,5 +102,6 @@ only ints and strings as fields
   val gen = LabelledGeneric[MyC]
   val a = foo(MyC("hello")).head.get(gen.to(MyC("yo")))
 
-//  the[GetFields[MyC]]
+  // TODO Inspect this to work on problems
+  val b = the[GetFields[MyC]]
 }

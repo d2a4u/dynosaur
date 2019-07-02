@@ -116,7 +116,7 @@ readability.</p>
   }
   
   oneOf { alt =&gt;
-    alt(tag(<span class="hljs-string">"error"</span>)(error)) |+| alt(tag(<span class="hljs-string">"user"</span>)(user)) 
+    alt(error tag <span class="hljs-string">"error"</span>) |+| alt(user tag <span class="hljs-string">"user"</span>) 
   }
 }
 </code></pre>
@@ -222,12 +222,13 @@ represents the ability to encode and decode an arbitrary <code>String</code>.</p
 <p>Let's unpack what's going on there.</p>
 <ol>
 <li><p>The first component is <code>field</code>:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.{<span class="hljs-type">Ap</span>, <span class="hljs-type">Field</span>}
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> cats.free.<span class="hljs-type">Free</span>
+   <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.<span class="hljs-type">Field</span>
 
-   <span class="hljs-keyword">val</span> fieldExample: <span class="hljs-type">Ap</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">String</span>] =
+   <span class="hljs-keyword">val</span> fieldExample: <span class="hljs-type">Free</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">String</span>] =
      <span class="hljs-type">Schema</span>.field(<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a)
 </code></pre>
-<p>Which represents an <em>applicative computation</em> that accesses
+<p>Which represents an computation that accesses
 fields of <code>Foo</code>, and returns <code>String.</code></p>
 <p>Points to note:</p>
 <ul>
@@ -253,9 +254,10 @@ applied type parameter trick as well.</p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> fieldExample = <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a)
 </code></pre>
 <p>We can define a field for <code>b</code> in a similar fashion.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.{<span class="hljs-type">Ap</span>, <span class="hljs-type">Field</span>}
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> cats.free.<span class="hljs-type">Free</span>
+   <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.<span class="hljs-type">Field</span>
 
-   <span class="hljs-keyword">val</span> b: <span class="hljs-type">Ap</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">Int</span>] = 
+   <span class="hljs-keyword">val</span> b: <span class="hljs-type">Free</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">Int</span>] = 
      <span class="hljs-type">Schema</span>.field(<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b)
 </code></pre></li>
 <li><p>The second step is the ability to say that if we can decode a field
@@ -269,10 +271,12 @@ In pseudo-code:</p>
 <span class="hljs-type">Decoded</span>[<span class="hljs-type">Foo</span>]
 </code></pre>
 <p>This is exactly the shape that <code>cats.Applicative</code> encodes, and our
-<code>field</code> returns applicative computations, which means we can do:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.{<span class="hljs-type">Ap</span>, <span class="hljs-type">Field</span>}
+<code>field</code> returns <code>Free</code> computations, which are instances of
+<code>Applicative</code> and allow us to do:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> cats.free.<span class="hljs-type">Free</span>
+   <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.<span class="hljs-type">Field</span>
 
-   <span class="hljs-keyword">val</span> foo: <span class="hljs-type">Ap</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">Foo</span>] = 
+   <span class="hljs-keyword">val</span> foo: <span class="hljs-type">Free</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">Foo</span>] = 
     (
      <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a),
      <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b),
@@ -400,12 +404,13 @@ above</p>
 </code></pre>
 <p>We'd like to keep the nesting in our code, but not in Dynamo.<br>
 Here's one way to do it by changing the schema for <code>msg</code> to a <code>String</code>
-and changing the accessor and constructor functions accordingly.</p>
+and changing the accessor and constructor functions accordingly.
+We will use <code>for</code> for convenience.</p>
 <pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.record[<span class="hljs-type">Error</span>] { field =&gt;
-  (
-    field(<span class="hljs-string">"code"</span>, <span class="hljs-type">Schema</span>.num, _.code),
-    field(<span class="hljs-string">"msg"</span>, <span class="hljs-type">Schema</span>.str, _.msg.value)
-  ).mapN((code, msg) =&gt; <span class="hljs-type">Error</span>(code, <span class="hljs-type">Msg</span>(msg)))
+  <span class="hljs-keyword">for</span> {
+    code &lt;- field(<span class="hljs-string">"code"</span>, <span class="hljs-type">Schema</span>.num, _.code)
+    msg &lt;- field(<span class="hljs-string">"msg"</span>, <span class="hljs-type">Schema</span>.str, _.msg.value)
+  } <span class="hljs-keyword">yield</span> <span class="hljs-type">Error</span>(code, <span class="hljs-type">Msg</span>(msg))
 }.write(errMsg)
 <span class="hljs-comment">// res17: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
@@ -458,6 +463,18 @@ Both the ability to assert that a field may not be there, and that the
 value of a field should be a <em>specific</em> <code>String</code> (or anything else)
 are useful, they are treated further down in this document.</p>
 <h3><a class="anchor" aria-hidden="true" id="constants"></a><a href="#constants" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Constants</h3>
+<h3><a class="anchor" aria-hidden="true" id="case-classes-with-more-than-22-fields"></a><a href="#case-classes-with-more-than-22-fields" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Case classes with more than 22 fields</h3>
+<p>Scala's tuples have a hard limit of 22 elements, so if your case class has
+more than 22 fields you won't be able to call <code>(f1, ..., f23).mapN</code>.<br>
+Just use <code>for</code> for this case:</p>
+<pre><code class="hljs css language-scala">record[<span class="hljs-type">BigClass</span>] { field =&gt;
+  <span class="hljs-keyword">for</span> {
+    f1 &lt;- field(...)
+    ...
+    f23 &lt;- field(...)
+  } <span class="hljs-keyword">yield</span> <span class="hljs-type">BigClass</span>(f1, .., f23)
+}
+</code></pre>
 <h3><a class="anchor" aria-hidden="true" id="coproducts"></a><a href="#coproducts" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Coproducts</h3>
 <p>Since DynamoDB uses a JSON-like format, there are different ways to
 encode coproducts. The recommended one looks like this:</p>
@@ -471,7 +488,7 @@ encode coproducts. The recommended one looks like this:</p>
 <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>._
 
 <span class="hljs-keyword">val</span> schema: <span class="hljs-type">Schema</span>[<span class="hljs-type">Auth</span>] = oneOf { alt =&gt;
-  alt(tag(<span class="hljs-string">"error"</span>)(error)) |+| alt(tag(<span class="hljs-string">"user"</span>)(user))
+  alt(error tag <span class="hljs-string">"error"</span>) |+| alt(user tag <span class="hljs-string">"user"</span>) 
 }
 </code></pre>
 <p>The first thing we need to make this work is a way to go from
@@ -671,7 +688,7 @@ coproduct case, like so:</p>
 tagged.read(out)
 <span class="hljs-comment">// res29: A = B(hello)</span>
 </code></pre>
-<p>This is common enough to be worth a <code>tag</code> combinator, which is what
+<p>This is common enough to be worth a <code>tag</code> method on <code>Schema</code>, which is what
 you saw in the initial example.</p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>._
 
@@ -683,7 +700,7 @@ you saw in the initial example.</p>
    field(<span class="hljs-string">"v"</span>, str, _.v).map(<span class="hljs-type">C</span>.apply)
   }
   
-  alt(tag(<span class="hljs-string">"b"</span>)(b)) |+| alt(tag(<span class="hljs-string">"c"</span>)(c))
+  alt(b tag <span class="hljs-string">"b"</span>) |+| alt(c tag <span class="hljs-string">"c"</span>)
 }
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="flexible-tagging"></a><a href="#flexible-tagging" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flexible tagging</h3>
@@ -699,4 +716,4 @@ actual content.</p>
 <h3><a class="anchor" aria-hidden="true" id="defaults-on-error"></a><a href="#defaults-on-error" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Defaults on error</h3>
 <p>withDefault</p>
 <h3><a class="anchor" aria-hidden="true" id="sequences"></a><a href="#sequences" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sequences</h3>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/dynosaur/docs/overview"><span class="arrow-prev">← </span><span>Overview</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#quick-example">Quick example</a></li><li><a href="#motivation">Motivation</a></li><li><a href="#schema">Schema</a><ul class="toc-headings"><li><a href="#records">Records</a></li><li><a href="#nested-records">Nested records</a></li><li><a href="#flattening-records">Flattening records</a></li><li><a href="#extra-information">Extra information</a></li><li><a href="#constants">Constants</a></li><li><a href="#coproducts">Coproducts</a></li><li><a href="#inference">Inference</a></li><li><a href="#tagging">Tagging</a></li><li><a href="#flexible-tagging">Flexible tagging</a></li><li><a href="#encoding-objects">Encoding objects</a></li><li><a href="#optional">Optional</a></li><li><a href="#defaults-on-error">Defaults on error</a></li><li><a href="#sequences">Sequences</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><hr class="separator"/><section class="copyright">Copyright © 2018-2019 OVO Energy Limited.</section></footer></div></body></html>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/dynosaur/docs/overview"><span class="arrow-prev">← </span><span>Overview</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#quick-example">Quick example</a></li><li><a href="#motivation">Motivation</a></li><li><a href="#schema">Schema</a><ul class="toc-headings"><li><a href="#records">Records</a></li><li><a href="#nested-records">Nested records</a></li><li><a href="#flattening-records">Flattening records</a></li><li><a href="#extra-information">Extra information</a></li><li><a href="#constants">Constants</a></li><li><a href="#case-classes-with-more-than-22-fields">Case classes with more than 22 fields</a></li><li><a href="#coproducts">Coproducts</a></li><li><a href="#inference">Inference</a></li><li><a href="#tagging">Tagging</a></li><li><a href="#flexible-tagging">Flexible tagging</a></li><li><a href="#encoding-objects">Encoding objects</a></li><li><a href="#optional">Optional</a></li><li><a href="#defaults-on-error">Defaults on error</a></li><li><a href="#sequences">Sequences</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><hr class="separator"/><section class="copyright">Copyright © 2018-2019 OVO Energy Limited.</section></footer></div></body></html>

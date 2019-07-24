@@ -45,4 +45,7 @@ object AwsOp {
   implicit val batchWrite
       : AwsOp[BatchWriteItemsRequest, BatchWriteItemsResponse] =
     instance("DynamoDB_20120810.BatchWriteItem")
+
+  implicit val query: AwsOp[QueryRequest, QueryResponse] =
+    instance("DynamoDB_20120810.Query")
 }

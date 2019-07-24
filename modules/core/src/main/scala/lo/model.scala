@@ -145,6 +145,15 @@ case class PutItemRequest(
 
 case class PutItemResponse(attributes: Option[AttributeValue.M])
 
+case class QueryRequest(
+    tableName: TableName,
+    consistent: Boolean = false
+)
+
+case class QueryResponse(
+    item: Option[AttributeValue.M]
+)
+
 case class GetItemRequest(
     tableName: TableName,
     key: AttributeValue.M,

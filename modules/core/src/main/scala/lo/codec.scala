@@ -248,6 +248,16 @@ object codec {
       } yield PutItemResponse(attributes.map(AttributeValue.M))
     }
 
+  implicit lazy val encodeQueryRequest: Encoder[QueryRequest] =
+    Encoder.instance { request =>
+      val jsMap: Map[String, Json] = Map(
+        "TableName" -> request.tableName.asJson
+      )
+      Json.obj(jsMap.toSeq: _*)
+    }
+  implicit lazy val decodeQueryRequest: Decoder[QueryRequest] =
+    Decoder.instance { ??? }
+
   implicit lazy val encodeGetItemRequest: Encoder[GetItemRequest] =
     Encoder.instance { request =>
       val jsMap: Map[String, Json] = Map(

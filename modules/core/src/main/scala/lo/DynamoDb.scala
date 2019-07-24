@@ -55,6 +55,8 @@ trait DynamoDb[F[_]] {
   def batchWriteItems(
       request: BatchWriteItemsRequest
   ): F[BatchWriteItemsResponse]
+
+  def query(request: QueryRequest): F[QueryResponse]
 }
 
 object DynamoDb {
@@ -133,6 +135,8 @@ object DynamoDb {
       def batchWriteItems(request: BatchWriteItemsRequest) =
         exec(request)
 
+      def query(request: QueryRequest) =
+        exec(request)
     }
   }
 

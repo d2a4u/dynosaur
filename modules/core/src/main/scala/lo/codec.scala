@@ -250,13 +250,28 @@ object codec {
 
   implicit lazy val encodeQueryRequest: Encoder[QueryRequest] =
     Encoder.instance { request =>
-      val jsMap: Map[String, Json] = Map(
-        "TableName" -> request.tableName.asJson
-      )
+      val jsMap: Map[String, Json] =
+        Map("TableName" -> request.tableName.value.asJson) ++ request.consistentRead
+          .map("ConsistentRead" -> _.value.asJson) ++ request.exclusiveStartKey
+          .map(x => "ExclusiveStartKey" -> extractM(x.values.asJson)) ++ request.expressionAttributeNames
+          .map("ExpressionAttributeNames" -> _.value.asJson) ++ request.expressionAttributeValues
+          .map(x => "ExpressionAttributeValues" -> extractM(x.values.asJson)) ++ request.filterExpression
+          .map("FilterExpression" -> _.value.asJson) ++ request.indexName
+          .map("IndexName" -> _.value.asJson) ++ request.keyConditionExpression
+          .map("KeyConditionExpression" -> _.value.asJson) ++ request.limit
+          .map("Limit" -> _.value.asJson) ++ request.projectionExpression
+          .map("ProjectionExpression" -> _.value.asJson) ++ request.returnConsumedCapacity
+          .map("ReturnConsumedCapacity" -> _.value.asJson) ++ request.scanIndexForward
+          .map("ScanIndexForward" -> _.value.asJson) ++ request.select
+          .map("Select" -> _.value.asJson)
+
       Json.obj(jsMap.toSeq: _*)
     }
-  implicit lazy val decodeQueryRequest: Decoder[QueryRequest] =
-    Decoder.instance { ??? }
+
+  implicit lazy val decodeQueryResponse: Decoder[QueryResponse] =
+    Decoder.instance { hc =>
+      ???
+    }
 
   implicit lazy val encodeGetItemRequest: Encoder[GetItemRequest] =
     Encoder.instance { request =>

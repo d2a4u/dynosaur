@@ -19,8 +19,25 @@ package lo
 package model
 
 import dynosaur.model.{AttributeName, AttributeValue}
-
 import cats.implicits._
+import dynosaur.lo.Capacity.{
+  CapacityUnits,
+  ReadCapacityUnits,
+  WriteCapacityUnits
+}
+import dynosaur.lo.model.QueryRequest.{
+  ConsistentRead,
+  ExpressionAttributeNames,
+  FilterExpression,
+  IndexName,
+  KeyConditionExpression,
+  Limit,
+  ReturnConsumedCapacity,
+  ScanIndexForward,
+  Select
+}
+import dynosaur.lo.model.QueryResponse.{ConsumedCapacity, Count, ScannedCount}
+
 import scala.reflect.macros.whitebox
 
 case class TableName(value: String)
@@ -147,12 +164,53 @@ case class PutItemResponse(attributes: Option[AttributeValue.M])
 
 case class QueryRequest(
     tableName: TableName,
-    consistent: Boolean = false
+    consistentRead: Option[ConsistentRead],
+    exclusiveStartKey: Option[AttributeValue.M] = None,
+    expressionAttributeNames: Option[ExpressionAttributeNames] = None,
+    expressionAttributeValues: Option[AttributeValue.M] = None,
+    filterExpression: Option[FilterExpression] = None,
+    indexName: Option[IndexName] = None,
+    keyConditionExpression: Option[KeyConditionExpression] = None,
+    limit: Option[Limit] = None,
+    projectionExpression: Option[ProjectionExpression] = None,
+    returnConsumedCapacity: Option[ReturnConsumedCapacity] = None,
+    scanIndexForward: Option[ScanIndexForward] = None,
+    select: Option[Select] = None
 )
+object QueryRequest {
+
+  case class ConsistentRead(value: Boolean)
+  case class ExpressionAttributeNames(value: Map[String, String])
+  case class FilterExpression(value: String)
+  case class KeyConditionExpression(value: String)
+  case class IndexName(value: String)
+  case class Limit(value: Int)
+  case class ReturnConsumedCapacity(value: String)
+  case class ScanIndexForward(value: Boolean)
+  case class Select(value: String)
+}
 
 case class QueryResponse(
-    item: Option[AttributeValue.M]
+    consumedCapacity: ConsumedCapacity,
+    count: Count,
+    items: AttributeValue.M,
+    lastEvaluatedKey: AttributeValue.M,
+    scannedCount: ScannedCount
 )
+object QueryResponse {
+
+  case class ConsumedCapacity(
+      capacityUnits: Option[CapacityUnits] = None,
+      globalSecondaryIndexes: Option[Map[String, Capacity]] = None,
+      localSecondaryIndexes: Option[Map[String, Capacity]] = None,
+      readCapacityUnits: Option[ReadCapacityUnits] = None,
+      table: Option[Capacity] = None,
+      tableName: Option[TableName] = None,
+      writeCapacityUnits: Option[WriteCapacityUnits] = None
+  )
+  case class Count(value: Int)
+  case class ScannedCount(value: Int)
+}
 
 case class GetItemRequest(
     tableName: TableName,

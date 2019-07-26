@@ -18,19 +18,17 @@ package dynosaur
 package lo
 
 import cats.implicits._
-
+import dynosaur.lo.Capacity.CapacityUnits
+import dynosaur.lo.model.QueryResponse.{ConsumedCapacity, Count, ScannedCount}
 import io.circe._
 import io.circe.syntax._
 import io.circe.literal._
 import io.circe.{Decoder, Encoder}
-
 import scodec.bits.ByteVector
-
 import dynosaur.model.{AttributeName, AttributeValue}
 import model._
 
 object codec {
-
   implicit val attributeNameKeyEncoder: KeyEncoder[AttributeName] =
     new KeyEncoder[AttributeName] {
       override def apply(an: AttributeName): String = an.value
@@ -268,9 +266,42 @@ object codec {
       Json.obj(jsMap.toSeq: _*)
     }
 
+  implicit lazy val decodeConsumedCapacity: Decoder[ConsumedCapacity] = {
+    implicit val decodeCapacityUnits: Decoder[CapacityUnits] =
+      Decoder.instance { hc =>
+        hc.get[CapacityUnits]("CapacityUnits")
+      }
+
+    Decoder.instance { hc =>
+      Right(ConsumedCapacity())
+    }
+  }
+
+  implicit lazy val decodeCount: Decoder[Count] = Decoder.instance { hc =>
+    hc.get("Count")
+  }
+
+  implicit lazy val decodeScannedCount: Decoder[ScannedCount] =
+    Decoder.instance { hc =>
+      hc.get("ScannedCount")
+    }
+
   implicit lazy val decodeQueryResponse: Decoder[QueryResponse] =
     Decoder.instance { hc =>
-      ???
+      for {
+        consumedCapacity <- hc.get[ConsumedCapacity]("ConsumedCapacity")
+        count <- hc.get[Count]("Count")
+        items <- hc.get[AttributeValue.M]("Items")
+        lastEvaluatedKey <- hc.get[AttributeValue.M]("LastEvaluatedKey")
+        scannedCount <- hc.get[ScannedCount]("ScannedCount")
+      } yield
+        QueryResponse(
+          consumedCapacity,
+          count,
+          items,
+          lastEvaluatedKey,
+          scannedCount
+        )
     }
 
   implicit lazy val encodeGetItemRequest: Encoder[GetItemRequest] =

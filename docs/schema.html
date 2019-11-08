@@ -1,5 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Encoding and decoding · Dynosaur</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;&lt;code&gt;Dynosaur&lt;/code&gt; design for codecs (pioneered by the&lt;/p&gt;
-"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Encoding and decoding · Dynosaur"/><meta property="og:type" content="website"/><meta property="og:url" content="https://ovotech.github.io/dynosaur/dynosaur/"/><meta property="og:description" content="&lt;p&gt;&lt;code&gt;Dynosaur&lt;/code&gt; design for codecs (pioneered by the&lt;/p&gt;
+<!DOCTYPE html><html lang="en"><head><meta charSet="utf-8"/><meta http-equiv="X-UA-Compatible" content="IE=edge"/><title>Encoding and decoding · Dynosaur</title><meta name="viewport" content="width=device-width"/><meta name="generator" content="Docusaurus"/><meta name="description" content="&lt;p&gt;&lt;code&gt;Dynosaur&lt;/code&gt; design for codecs is based on defining &lt;em&gt;schemas&lt;/em&gt; for your&lt;/p&gt;
+"/><meta name="docsearch:language" content="en"/><meta property="og:title" content="Encoding and decoding · Dynosaur"/><meta property="og:type" content="website"/><meta property="og:url" content="https://ovotech.github.io/dynosaur/dynosaur/"/><meta property="og:description" content="&lt;p&gt;&lt;code&gt;Dynosaur&lt;/code&gt; design for codecs is based on defining &lt;em&gt;schemas&lt;/em&gt; for your&lt;/p&gt;
 "/><meta name="twitter:card" content="summary"/><link rel="shortcut icon" href="/dynosaur/undefined"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css"/><script src="/dynosaur/js/scrollSpy.js"></script><link rel="stylesheet" href="/dynosaur/css/main.css"/><script src="/dynosaur/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/dynosaur/"><h2 class="headerTitle">Dynosaur</h2></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class="siteNavGroupActive"><a href="/dynosaur/docs/overview" target="_self">Documentation</a></li><li class=""><a href="https://github.com/ovotech/dynosaur" target="_self">GitHub</a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container docsNavContainer" id="docsNav"><nav class="toc"><div class="toggleNav"><section class="navWrapper wrapper"><div class="navBreadcrumb wrapper"><div class="navToggle" id="navToggler"><div class="hamburger-menu"><div class="line1"></div><div class="line2"></div><div class="line3"></div></div></div><h2><i>›</i><span>Documentation</span></h2><div class="tocToggler" id="tocToggler"><i class="icon-toc"></i></div></div><div class="navGroups"><div class="navGroup"><h3 class="navGroupCategoryTitle">Documentation</h3><ul class=""><li class="navListItem"><a class="navItem" href="/dynosaur/docs/overview">Overview</a></li><li class="navListItem navListItemActive"><a class="navItem" href="/dynosaur/docs/schema">Encoding and decoding</a></li></ul></div></div></section></div><script>
             var coll = document.getElementsByClassName('collapsible');
             var checkActiveCategory = true;
@@ -56,10 +56,11 @@
                 };
               }
             });
-        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Encoding and decoding</h1></header><article><div><span><p><code>Dynosaur</code> design for codecs (pioneered by the
-<a href="https://github.com/nuttycom/xenomorph">xenomorph</a> library) is based
-on defining <em>schemas</em> for your data, rather than your typical
-<code>Encoder/Decoder</code> typeclasses.</p>
+        </script></nav></div><div class="container mainContainer"><div class="wrapper"><div class="post"><header class="postHeader"><h1 class="postHeaderTitle">Encoding and decoding</h1></header><article><div><span><p><code>Dynosaur</code> design for codecs is based on defining <em>schemas</em> for your
+data, rather than your typical <code>Encoder/Decoder</code> typeclasses.
+The central type of the DSL is <code>Schema[A]</code>, which you can think of as
+either a representation of <code>A</code>, or a recipe for <em>both</em> encoding and
+decoding <code>A</code>s to and from <code>AttributeValue</code>.</p>
 <p><strong>Note:</strong>  basic familiarity with <code>cats</code> typeclasses like <code>Monoid</code> and
 <code>Applicative</code> is required.</p>
 <h2><a class="anchor" aria-hidden="true" id="setup"></a><a href="#setup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Setup</h2>
@@ -67,11 +68,13 @@ on defining <em>schemas</em> for your data, rather than your typical
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> dynosaur.codec.<span class="hljs-type">Schema</span>
 <span class="hljs-keyword">import</span> cats.implicits._
 </code></pre>
-<p>We will also define some helpers to run the examples in this page, but
-you are not going to need them in your own code.<br>
+<p>We will also define <code>.read</code> and <code>.write</code> helpers to run the examples
+in this page, but you are not going to need them in your own code.<br>
 For the time being, we will ignore potential errors, and show the
 output as <code>Json</code> instead of the <code>AttributeValue</code> ADT to help with
 readability.</p>
+<p><details>
+<summary>Click to expand</summary></p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">implicit</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Codecs</span>[<span class="hljs-type">A</span>](<span class="hljs-params">schema: <span class="hljs-type">Schema</span>[<span class="hljs-type">A</span>]</span>) </span>{
   <span class="hljs-keyword">import</span> dynosaur.codec.{<span class="hljs-type">Encoder</span>, <span class="hljs-type">Decoder</span>}
   <span class="hljs-keyword">import</span> dynosaur.model.<span class="hljs-type">AttributeValue</span>
@@ -92,6 +95,7 @@ readability.</p>
   }.get
 }
 </code></pre>
+<p></details></p>
 <h2><a class="anchor" aria-hidden="true" id="quick-example"></a><a href="#quick-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Quick example</h2>
 <p>Given this simple ADT</p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Auth</span></span>
@@ -101,26 +105,24 @@ readability.</p>
 }
 </code></pre>
 <p>We define a schema for it</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> schema: <span class="hljs-type">Schema</span>[<span class="hljs-type">Auth</span>] = {
-  <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>._
-
-  <span class="hljs-keyword">val</span> error = record[<span class="hljs-type">Auth</span>.<span class="hljs-type">Error</span>] { field =&gt;
-    field(<span class="hljs-string">"reason"</span>, str, _.reason).map(<span class="hljs-type">Auth</span>.<span class="hljs-type">Error</span>.apply)
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> schema: <span class="hljs-type">Schema</span>[<span class="hljs-type">Auth</span>] = <span class="hljs-type">Schema</span>.oneOf { alt =&gt;
+  <span class="hljs-keyword">val</span> error = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Auth</span>.<span class="hljs-type">Error</span>] { field =&gt;
+    field(<span class="hljs-string">"reason"</span>, _.reason).map(<span class="hljs-type">Auth</span>.<span class="hljs-type">Error</span>.apply)
    }
    
-  <span class="hljs-keyword">val</span> user = record[<span class="hljs-type">Auth</span>.<span class="hljs-type">User</span>] { field =&gt;
+  <span class="hljs-keyword">val</span> user = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Auth</span>.<span class="hljs-type">User</span>] { field =&gt;
     (
-      field(<span class="hljs-string">"id"</span>, num, _.id),
-      field(<span class="hljs-string">"name"</span>, str, _.name)
+      field(<span class="hljs-string">"id"</span>, _.id),
+      field(<span class="hljs-string">"name"</span>, _.name)
     ).mapN(<span class="hljs-type">Auth</span>.<span class="hljs-type">User</span>.apply)
   }
   
-  oneOf { alt =&gt;
-    alt(error tag <span class="hljs-string">"error"</span>) |+| alt(user tag <span class="hljs-string">"user"</span>) 
-  }
+  alt(error tag <span class="hljs-string">"error"</span>) |+| alt(user tag <span class="hljs-string">"user"</span>) 
 }
 </code></pre>
-<p>Which can then be used for both encoding and decoding</p>
+<p>Which can then be used for both encoding and decoding:</p>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> u = <span class="hljs-type">Auth</span>.<span class="hljs-type">User</span>(<span class="hljs-number">303</span>, <span class="hljs-string">"tim"</span>)
 <span class="hljs-comment">// u: Auth.User = User(303,tim)</span>
 <span class="hljs-keyword">val</span> e = <span class="hljs-type">Auth</span>.<span class="hljs-type">Error</span>(<span class="hljs-string">"Unauthorized"</span>)
@@ -158,6 +160,7 @@ schema.write(e)
 schema.read(schema.write(e))
 <span class="hljs-comment">// res3: Auth = Error(Unauthorized)</span>
 </code></pre>
+<p></details></p>
 <p>In the rest of the document, we will only show encoding since decoding
 comes for free, unless there is something specific to point out about
 the behaviour of the decoder.</p>
@@ -166,13 +169,19 @@ the behaviour of the decoder.</p>
 <code>Encoder/Decoder</code> typeclasses, sometimes including automatic derivation.
 This approach has the following drawbacks:</p>
 <ul>
-<li>Automatic derivation is useful, but it's not flexible enough to
-cover many potential transformations you want to do on the serialised
-data, like changing field names, flattening some records, adding
-extra information, or have different encodings for sums types.</li>
-<li>Writing explicit encoders and decoders is annoying because you need
-to keep them in sync, and the required code is similar enough to be
-tedious, but different enough to be error prone.<br>
+<li>Automatic derivation is <em>opaque</em> : you cannot easily read how your
+format looks like, you need to recall the implicit mapping rules
+between your data and the format.</li>
+<li>Automatic derivation is <em>brittle</em>: generally harmless
+transformations like rename refactoring on your data can break your
+format.</li>
+<li>Automatic derivation is <em>inflexible</em> : it cannot cover many useful
+transformations on your format like different naming, encoding of
+ADTs, flattening some records, approach to optionality and so on.</li>
+<li>Juggling different formats for the same data is cumbersome.</li>
+<li>On the other hand, writing explicit encoders and decoders is
+annoying because you need to keep them in sync, and the required
+code is similar enough to be tedious, but different enough to be error prone.<br>
 Even without this duplication, the process is still made hard by the
 fact that you are dealing with the practical details of traversing a
 low level data structure like Json or AttributeValue.</li>
@@ -185,33 +194,113 @@ be flexible in how you define your serialised data, without
 duplicating code for encoders and decoders, and with a declarative
 focus on the <em>structure</em> of the data, rather than the traversal of a
 low level representation.</p>
-<h2><a class="anchor" aria-hidden="true" id="schema"></a><a href="#schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Schema</h2>
-<p>The central type of the DSL is <code>Schema[A]</code>, which you can think of as
-either a representation of <code>A</code>, or a recipe for <em>both</em> encoding and
-decoding <code>A</code>s to and from <code>AttributeValue</code>.
-The simplest instances of <code>Schema</code> are primitives, for example <code>str</code>
-represents the ability to encode and decode an arbitrary <code>String</code>.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> strings: <span class="hljs-type">Schema</span>[<span class="hljs-type">String</span>] = <span class="hljs-type">Schema</span>.str
+<h2><a class="anchor" aria-hidden="true" id="primitives"></a><a href="#primitives" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Primitives</h2>
+<p>The simplest instances of <code>Schema</code> are primitives, for example <code>Schema[String]</code>
+represents the ability to encode and decode an arbitrary <code>String</code>.
+The following primitives are supported:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>[<span class="hljs-type">Boolean</span>]
+<span class="hljs-type">Schema</span>[<span class="hljs-type">String</span>]
+<span class="hljs-type">Schema</span>[<span class="hljs-type">Int</span>]
+<span class="hljs-type">Schema</span>[<span class="hljs-type">Long</span>]
+<span class="hljs-type">Schema</span>[<span class="hljs-type">Double</span>]
+<span class="hljs-type">Schema</span>[<span class="hljs-type">Float</span>]
+<span class="hljs-type">Schema</span>[<span class="hljs-type">Short</span>]
+<span class="hljs-type">Schema</span>[<span class="hljs-type">AttributeValue</span>]
 </code></pre>
-<h3><a class="anchor" aria-hidden="true" id="records"></a><a href="#records" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Records</h3>
+<blockquote>
+<p><strong>Notes:</strong></p>
+<ul>
+<li><code>Schema[AttributeValue]</code> is the identity schema that writes and
+reads <code>AttributeValue</code> without touching it</li>
+<li>Infamously, DynamoDB does not support empty strings. <code>dynosaur</code>
+does not introduce any magic to deal with this automatically, but
+it's flexible enough to allow you to handle this case in several
+ways, including putting <code>NULL</code> or a special
+value.<br>
+Read on to learn about <code>imapErr</code>, <code>nullable</code> and all the other
+combinators you can use to mold your data to fit your needs.</li>
+</ul>
+</blockquote>
+<h2><a class="anchor" aria-hidden="true" id="bidirectional-mappings"></a><a href="#bidirectional-mappings" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Bidirectional mappings</h2>
+<p>New schemas can be created from existing ones by declaring a
+bidirectional mapping between them.<br>
+The most general way is using the <code>xmap</code> method on <code>Schema</code>:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Schema</span>[<span class="hljs-type">A</span>] </span>{
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">xmap</span></span>[<span class="hljs-type">B</span>](f: <span class="hljs-type">A</span> =&gt; <span class="hljs-type">Either</span>[<span class="hljs-type">ReadError</span>, <span class="hljs-type">B</span>])(g: <span class="hljs-type">B</span> =&gt; <span class="hljs-type">Either</span>[<span class="hljs-type">WriteError</span>, <span class="hljs-type">A</span>]): <span class="hljs-type">Schema</span>[<span class="hljs-type">B</span>]
+
+</code></pre>
+<p>although in many cases its two specialised variants <code>imap</code> and
+<code>imapErr</code> are sufficient:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Schema</span>[<span class="hljs-type">A</span>] </span>{
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">imap</span></span>[<span class="hljs-type">B</span>](f: <span class="hljs-type">A</span> =&gt; <span class="hljs-type">B</span>)(g: <span class="hljs-type">B</span> =&gt; <span class="hljs-type">A</span>): <span class="hljs-type">Schema</span>[<span class="hljs-type">B</span>]
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">imapErr</span></span>[<span class="hljs-type">B</span>](f: <span class="hljs-type">A</span> =&gt; <span class="hljs-type">Either</span>[<span class="hljs-type">ReadError</span>, <span class="hljs-type">B</span>])(g: <span class="hljs-type">B</span> =&gt; <span class="hljs-type">A</span>): <span class="hljs-type">Schema</span>[<span class="hljs-type">B</span>]
+
+</code></pre>
+<p><code>imap</code> defines an isomorphism between <code>A</code> and <code>B</code>, which often arises
+when using newtypes such as:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EventId</span>(<span class="hljs-params">value: <span class="hljs-type">String</span></span>)</span>
+</code></pre>
+<p>We would like to keep the specialised representation of <code>EventId</code> in
+our code, but represent it as a simple <code>String</code> in Dynamo, without the
+extra nesting.</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> eventIdSchema = <span class="hljs-type">Schema</span>[<span class="hljs-type">String</span>].imap(<span class="hljs-type">EventId</span>.apply)(_.value)
+</code></pre>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala">eventIdSchema.write(<span class="hljs-type">EventId</span>(<span class="hljs-string">"event-1234"</span>))
+<span class="hljs-comment">// res4: io.circe.Json = {</span>
+<span class="hljs-comment">//   "S" : "event-1234"</span>
+<span class="hljs-comment">// }</span>
+</code></pre>
+<p></details></p>
+<p><code>imapErr</code> encodes the common case where encoding cannot fail but
+decoding can, as seen, for example, in enums:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> dynosaur.codec.<span class="hljs-type">ReadError</span>
+
+<span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Switch</span></span>
+<span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Switch</span> </span>{
+  <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">On</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Switch</span></span>
+  <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Off</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Switch</span></span>
+
+  <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">parse</span></span>: <span class="hljs-type">String</span> =&gt; <span class="hljs-type">Option</span>[<span class="hljs-type">Switch</span>] = _.trim.toLowerCase <span class="hljs-keyword">match</span> {
+    <span class="hljs-keyword">case</span> <span class="hljs-string">"on"</span> =&gt; <span class="hljs-type">On</span>.some
+    <span class="hljs-keyword">case</span> <span class="hljs-string">"off"</span> =&gt; <span class="hljs-type">Off</span>.some
+    <span class="hljs-keyword">case</span> _ =&gt; none
+  }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">switchSchema</span> </span>= <span class="hljs-type">Schema</span>[<span class="hljs-type">String</span>].imapErr { s =&gt;
+   <span class="hljs-type">Switch</span>.parse(s).toRight(<span class="hljs-type">ReadError</span>()) <span class="hljs-comment">// TODO s"$s is not a valid Switch"</span>
+ }(_.toString)
+</code></pre>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> a = switchSchema.write(<span class="hljs-type">Switch</span>.<span class="hljs-type">On</span>)
+<span class="hljs-comment">// a: io.circe.Json = {</span>
+<span class="hljs-comment">//   "S" : "On"</span>
+<span class="hljs-comment">// }</span>
+</code></pre>
+<p></details></p>
+<h2><a class="anchor" aria-hidden="true" id="records"></a><a href="#records" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Records</h2>
 <p>Let's have a look at records with a case class example:</p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">String</span>, b: <span class="hljs-type">Int</span></span>)</span>
 </code></pre>
 <p>whose <code>Schema[Foo]</code> can be defined as:</p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> fooSchema = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
  (
-  field(<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a),
-  field(<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b)
+   field(<span class="hljs-string">"a"</span>, _.a)(<span class="hljs-type">Schema</span>[<span class="hljs-type">String</span>]),
+   field(<span class="hljs-string">"b"</span>, _.b)(<span class="hljs-type">Schema</span>[<span class="hljs-type">Int</span>])
  ).mapN(<span class="hljs-type">Foo</span>.apply)
 }
 
 </code></pre>
-<p>Resulting in the expected <code>AttributeValue</code> representation:</p>
-<pre><code class="hljs css language-scala">fooSchema.write(<span class="hljs-type">Foo</span>(<span class="hljs-string">"a"</span>, <span class="hljs-number">1</span>))
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala">fooSchema.write(<span class="hljs-type">Foo</span>(<span class="hljs-string">"value of Foo"</span>, <span class="hljs-number">1</span>))
 <span class="hljs-comment">// res5: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
 <span class="hljs-comment">//     "a" : {</span>
-<span class="hljs-comment">//       "S" : "a"</span>
+<span class="hljs-comment">//       "S" : "value of Foo"</span>
 <span class="hljs-comment">//     },</span>
 <span class="hljs-comment">//     "b" : {</span>
 <span class="hljs-comment">//       "N" : "1"</span>
@@ -219,136 +308,61 @@ represents the ability to encode and decode an arbitrary <code>String</code>.</p
 <span class="hljs-comment">//   }</span>
 <span class="hljs-comment">// }</span>
 </code></pre>
-<p>Let's unpack what's going on there.</p>
-<ol>
-<li><p>The first component is <code>field</code>:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> cats.free.<span class="hljs-type">Free</span>
-   <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.<span class="hljs-type">Field</span>
-
-   <span class="hljs-keyword">val</span> fieldExample: <span class="hljs-type">Free</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">String</span>] =
-     <span class="hljs-type">Schema</span>.field(<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a)
-</code></pre>
-<p>Which represents an computation that accesses
-fields of <code>Foo</code>, and returns <code>String.</code></p>
-<p>Points to note:</p>
-<ul>
-<li><code>&quot;a&quot;</code> is the name of the field in the serialised <code>AttributeValue</code>.</li>
-<li><code>Schema.str: Schema[String]</code> is the schema for the value of that
-field. It says that you will get a <code>String</code> when decoding, which is
-why <code>fieldExample</code> returns a <code>String</code> as a whole.</li>
-<li><code>_.a</code> describes how to access the <code>a</code> field when given a
-<code>Foo</code>. Because the value of the field is described by
-<code>Schema.str</code>, <code>_.a</code> needs to return a <code>String</code> or you will get a
-compile error.</li>
-</ul>
-<p>Another thing to point out is that the following will fail to compile,
-because Scala is not able to infer that the argument of <code>_.a</code> is of
-type <code>Foo</code>.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> failedFieldExample = <span class="hljs-type">Schema</span>.field(<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a) 
-<span class="hljs-comment">// error: missing parameter type for expanded function ((x$8: &lt;error&gt;) =&gt; x$8.a)</span>
-<span class="hljs-comment">//    val failedFieldExample = Schema.field("a", Schema.str, _.a) </span>
-<span class="hljs-comment">//                                                           ^</span>
-</code></pre>
-<p>You can annotate the function directly, but <code>field</code> uses the partially
-applied type parameter trick as well.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> fieldExample = <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a)
-</code></pre>
-<p>We can define a field for <code>b</code> in a similar fashion.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> cats.free.<span class="hljs-type">Free</span>
-   <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.<span class="hljs-type">Field</span>
-
-   <span class="hljs-keyword">val</span> b: <span class="hljs-type">Free</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">Int</span>] = 
-     <span class="hljs-type">Schema</span>.field(<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b)
-</code></pre></li>
-<li><p>The second step is the ability to say that if we can decode a field
-named <code>&quot;a&quot;</code> as a <code>String</code>, and a field named <code>&quot;b&quot;</code> as an <code>Int</code>, we can
-decode a <code>Foo</code>.
-In pseudo-code:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-type">Decoded</span>[<span class="hljs-type">String</span>]
-<span class="hljs-type">Decoded</span>[<span class="hljs-type">Int</span>]
-(<span class="hljs-type">String</span>, <span class="hljs-type">Int</span>) =&gt; <span class="hljs-type">Foo</span>
-----
-<span class="hljs-type">Decoded</span>[<span class="hljs-type">Foo</span>]
-</code></pre>
-<p>This is exactly the shape that <code>cats.Applicative</code> encodes, and our
-<code>field</code> returns <code>Free</code> computations, which are instances of
-<code>Applicative</code> and allow us to do:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> cats.free.<span class="hljs-type">Free</span>
-   <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.<span class="hljs-type">Field</span>
-
-   <span class="hljs-keyword">val</span> foo: <span class="hljs-type">Free</span>[<span class="hljs-type">Field</span>[<span class="hljs-type">Foo</span>, ?], <span class="hljs-type">Foo</span>] = 
-    (
-     <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a),
-     <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b),
-    ).mapN(<span class="hljs-type">Foo</span>.apply)
-</code></pre>
-<p>The <code>fields</code> constructor can turn the above into a <code>Schema[Foo]</code></p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> foo: <span class="hljs-type">Schema</span>[<span class="hljs-type">Foo</span>] = <span class="hljs-type">Schema</span>.fields {
-    (
-     <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a),
-     <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b),
-    ).mapN(<span class="hljs-type">Foo</span>.apply)
-   }
-</code></pre></li>
-<li><p>Finally, the schema for <code>foo</code> is a bit cluttered by all those <code>[Foo]</code>
-ascriptions to help inference. You do need at least one due to
-fundamental limitations of type inference in Scala, but the library
-provides the <code>record</code> builder to minimise clutter for you.</p>
-<p>The basic idea is that instead of writing</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> foo: <span class="hljs-type">Schema</span>[<span class="hljs-type">Foo</span>] = <span class="hljs-type">Schema</span>.fields {
-    (
-     <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a),
-     <span class="hljs-type">Schema</span>.field[<span class="hljs-type">Foo</span>](<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b),
-    ).mapN(<span class="hljs-type">Foo</span>.apply)
-   }
-</code></pre>
-<p>You can write</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> foo: <span class="hljs-type">Schema</span>[<span class="hljs-type">Foo</span>] = <span class="hljs-type">Schema</span>.record { field =&gt;
-    (
-     field(<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a),
-     field(<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b),
-    ).mapN(<span class="hljs-type">Foo</span>.apply)
-   }
-</code></pre>
-<p>You can even omit the type signature altogether as long as you
-put a type ascription on <code>record</code>, which is how our initial example
-schema looked like:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> foo = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
-    (
-     field(<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a),
-     field(<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b),
-    ).mapN(<span class="hljs-type">Foo</span>.apply)
-   }
-</code></pre>
-<p>Note that <code>field</code> there is the argument to the function passed to
-<code>record</code>, and not <code>Schema.field</code>. If you prefer, you can rename that
-to whatever you like.</p></li>
-</ol>
-<h3><a class="anchor" aria-hidden="true" id="nested-records"></a><a href="#nested-records" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Nested records</h3>
-<p>Nested records naturally correspond to nested schemas</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Bar</span>(<span class="hljs-params">n: <span class="hljs-type">Int</span>, foo: <span class="hljs-type">Foo</span></span>)</span>
-<span class="hljs-keyword">val</span> nestedSchema: <span class="hljs-type">Schema</span>[<span class="hljs-type">Bar</span>] = {
-  <span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>._
-  <span class="hljs-comment">// we could also reuse the one defined above, of course</span>
-  <span class="hljs-keyword">val</span> foo = record[<span class="hljs-type">Foo</span>] { field =&gt;
-    (
-      field(<span class="hljs-string">"a"</span>, str, _.a),
-      field(<span class="hljs-string">"b"</span>, num, _.b)
-    ).mapN(<span class="hljs-type">Foo</span>.apply)
-  }
-  
-  record { field =&gt;
-    (
-     field(<span class="hljs-string">"n"</span>, num, _.n),
-     field(<span class="hljs-string">"foo"</span>, foo, _.foo) <span class="hljs-comment">// we pass `foo` here</span>
-    ).mapN(<span class="hljs-type">Bar</span>.apply)
-  }
+<p></details></p>
+<p>The central component is <code>Schema.record</code>:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
+  ???
 }
 </code></pre>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> bar = <span class="hljs-type">Bar</span>(<span class="hljs-number">10</span>, <span class="hljs-type">Foo</span>(<span class="hljs-string">"value"</span>, <span class="hljs-number">40</span>))
-<span class="hljs-comment">// bar: Bar = Bar(10,Foo(value,40))</span>
+<p>Which states that the type <code>Foo</code> is represented by a record, and gives
+you the <code>field</code> builder to create fields by calling its various
+methods. The primary method is <code>apply</code></p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
+ <span class="hljs-keyword">val</span> b = field(<span class="hljs-string">"b"</span>, _.b)(<span class="hljs-type">Schema</span>[<span class="hljs-type">Int</span>])
+  
+ ???
+}
+</code></pre>
+<p>which takes three arguments:</p>
+<ol>
+<li>the name of the field in the resulting <code>AttributeValue</code></li>
+<li>A function to access the field during the encoding phase, in this case <code>Foo =&gt; Int</code></li>
+<li>the schema of the field, which is <code>Schema[Int]</code> is this case</li>
+</ol>
+<p>Once we have declared our fields, we need to tell <code>dynosaur</code> how to
+combine them into a <code>Foo</code> during the decoding phase. Luckily, the
+computations returned by <code>field.apply</code> are monadic, so we can use
+<code>mapN</code> from cats:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
+ (
+   field(<span class="hljs-string">"a"</span>,_.a)(<span class="hljs-type">Schema</span>[<span class="hljs-type">String</span>]),
+   field(<span class="hljs-string">"b"</span>, _.b)(<span class="hljs-type">Schema</span>[<span class="hljs-type">Int</span>])
+ ).mapN(<span class="hljs-type">Foo</span>.apply)
+}
+</code></pre>
+<p>These definitions nest in the obvious way:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Bar</span>(<span class="hljs-params">n: <span class="hljs-type">Int</span>, foo: <span class="hljs-type">Foo</span></span>)</span>
+<span class="hljs-keyword">val</span> nestedSchema: <span class="hljs-type">Schema</span>[<span class="hljs-type">Bar</span>] =
+  <span class="hljs-type">Schema</span>.record { field =&gt;
+   (
+     field(<span class="hljs-string">"n"</span>, _.n)(<span class="hljs-type">Schema</span>[<span class="hljs-type">Int</span>]),
+     field(<span class="hljs-string">"foo"</span>, _.foo) {
+       <span class="hljs-type">Schema</span>.record { field =&gt;
+         (
+          field(<span class="hljs-string">"a"</span>, _.a)(<span class="hljs-type">Schema</span>[<span class="hljs-type">String</span>]),
+          field(<span class="hljs-string">"b"</span>,_.b)(<span class="hljs-type">Schema</span>[<span class="hljs-type">Int</span>])
+         ).mapN(<span class="hljs-type">Foo</span>.apply)
+       }
+     }
+    ).mapN(<span class="hljs-type">Bar</span>.apply)
+  }
+</code></pre>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> bar = <span class="hljs-type">Bar</span>(<span class="hljs-number">10</span>, <span class="hljs-type">Foo</span>(<span class="hljs-string">"value of Foo"</span>, <span class="hljs-number">40</span>))
+<span class="hljs-comment">// bar: Bar = Bar(10,Foo(value of Foo,40))</span>
 nestedSchema.write(bar)
-<span class="hljs-comment">// res15: io.circe.Json = {</span>
+<span class="hljs-comment">// res9: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
 <span class="hljs-comment">//     "n" : {</span>
 <span class="hljs-comment">//       "N" : "10"</span>
@@ -356,7 +370,7 @@ nestedSchema.write(bar)
 <span class="hljs-comment">//     "foo" : {</span>
 <span class="hljs-comment">//       "M" : {</span>
 <span class="hljs-comment">//         "a" : {</span>
-<span class="hljs-comment">//           "S" : "value"</span>
+<span class="hljs-comment">//           "S" : "value of Foo"</span>
 <span class="hljs-comment">//         },</span>
 <span class="hljs-comment">//         "b" : {</span>
 <span class="hljs-comment">//           "N" : "40"</span>
@@ -366,103 +380,171 @@ nestedSchema.write(bar)
 <span class="hljs-comment">//   }</span>
 <span class="hljs-comment">// }</span>
 </code></pre>
-<h3><a class="anchor" aria-hidden="true" id="flattening-records"></a><a href="#flattening-records" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flattening records</h3>
-<p>When modelling data in code, sometimes it's desirable to introduce newtypes
-for extra precision:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Msg</span>(<span class="hljs-params">value: <span class="hljs-type">String</span></span>)</span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Error</span>(<span class="hljs-params">code: <span class="hljs-type">Int</span>, msg: <span class="hljs-type">Msg</span></span>)</span>
-</code></pre>
-<p>This would result in extra nesting in the AttributeValue, if encoded as shown
-above</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> errMsg = <span class="hljs-type">Error</span>(<span class="hljs-number">2</span>, <span class="hljs-type">Msg</span>(<span class="hljs-string">"problem"</span>))
-<span class="hljs-comment">// errMsg: Error = Error(2,Msg(problem))</span>
-
-<span class="hljs-type">Schema</span>.record[<span class="hljs-type">Error</span>] { field =&gt;
+<p></details></p>
+<blockquote>
+<p><strong>Notes:</strong></p>
+<ul>
+<li><code>record</code> is designed to help type inference as much as possible, but
+you <strong>have</strong> to specify which type your schema is for, either with an
+ascription or an annotation. If you don't do that, your
+accessor functions inside <code>field</code> will not infer:
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> good = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt; ???}
+<span class="hljs-keyword">val</span> alsoGood: <span class="hljs-type">Schema</span>[<span class="hljs-type">Foo</span>] = <span class="hljs-type">Schema</span>.record { field =&gt; ??? }
+<span class="hljs-keyword">val</span> bad = <span class="hljs-type">Schema</span>.record { field =&gt; ??? }
+</code></pre></li>
+<li>You can name the builder that <code>record</code> gives you however you want
+obviously, but <code>field</code> is nice and descriptive.</li>
+</ul>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" id="implicit-vs-explicit-schemas-in-field"></a><a href="#implicit-vs-explicit-schemas-in-field" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implicit vs explicit schemas in <code>field</code></h3>
+<p>In general, <code>Schema</code> is not a typeclass since there often are multiple
+different encodings for the same type, but at the same time typing
+<code>Schema[String]</code> everywhere for primitive types whose encoding hardly
+if ever changes gets old quickly.
+The <code>field</code> builder is designed to take the schema of the field as its
+sole implicit argument, so that you can pass schemas implicitly or
+explicitly at ease.</p>
+<blockquote>
+<p>The recommended guideline is to pass schemas for primitives
+implicitly, and schemas for your own datatypes explicitly.</p>
+</blockquote>
+<p>This is how the previous schema would look like with the proposed
+guideline:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.record[<span class="hljs-type">Bar</span>] { field =&gt;
  (
-   field(<span class="hljs-string">"code"</span>, <span class="hljs-type">Schema</span>.num, _.code),
-   field(
-     <span class="hljs-string">"msg"</span>,
-     <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Msg</span>](_(<span class="hljs-string">"value"</span>, <span class="hljs-type">Schema</span>.str, _.value).map(<span class="hljs-type">Msg</span>.apply)),
-     _.msg
-   )
-  ).mapN(<span class="hljs-type">Error</span>.apply)
-}.write(errMsg)
-<span class="hljs-comment">// res16: io.circe.Json = {</span>
+   field(<span class="hljs-string">"n"</span>, _.n),
+   field(<span class="hljs-string">"foo"</span>, _.foo) {
+     <span class="hljs-type">Schema</span>.record { field =&gt;
+       (
+         field(<span class="hljs-string">"a"</span>, _.a),
+         field(<span class="hljs-string">"b"</span>, _.b)
+       ).mapN(<span class="hljs-type">Foo</span>.apply)
+     }
+   }
+ ).mapN(<span class="hljs-type">Bar</span>.apply)
+}
+</code></pre>
+<h3><a class="anchor" aria-hidden="true" id="additional-structure"></a><a href="#additional-structure" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Additional structure</h3>
+<p>The monadic nature of the <code>field</code> builder allows to give additional
+structure to the serialised record without affecting the code
+representation. For example, given our <code>Foo</code>:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">a: <span class="hljs-type">String</span>, b: <span class="hljs-type">Int</span></span>)</span>
+
+<span class="hljs-keyword">val</span> fooSchema = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
+ (
+   field(<span class="hljs-string">"a"</span>, _.a),
+   field(<span class="hljs-string">"b"</span>, _.b)
+ ).mapN(<span class="hljs-type">Foo</span>.apply)
+}
+</code></pre>
+<p>We would like to produce a record that wraps <code>Foo</code> in an envelope
+containing an <code>eventId</code> and a <code>payload</code>. We will take advantage of <code>*&gt;</code>, a
+variant of <code>mapN</code> from <code>cats</code> which discards the left-hand side of an
+applicative computation:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> randomEventId = <span class="hljs-string">"14tafet143ba"</span>
+<span class="hljs-keyword">val</span> envelopeSchema = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
+  field(<span class="hljs-string">"eventId"</span>, _ =&gt; randomEventId) *&gt; field(<span class="hljs-string">"payload"</span>, x =&gt; x)(fooSchema)
+}
+</code></pre>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala">envelopeSchema.write(<span class="hljs-type">Foo</span>(<span class="hljs-string">"value of Foo"</span>, <span class="hljs-number">150</span>))
+<span class="hljs-comment">// res12: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
-<span class="hljs-comment">//     "code" : {</span>
-<span class="hljs-comment">//       "N" : "2"</span>
+<span class="hljs-comment">//     "eventId" : {</span>
+<span class="hljs-comment">//       "S" : "14tafet143ba"</span>
 <span class="hljs-comment">//     },</span>
-<span class="hljs-comment">//     "msg" : {</span>
+<span class="hljs-comment">//     "payload" : {</span>
 <span class="hljs-comment">//       "M" : {</span>
-<span class="hljs-comment">//         "value" : {</span>
-<span class="hljs-comment">//           "S" : "problem"</span>
+<span class="hljs-comment">//         "a" : {</span>
+<span class="hljs-comment">//           "S" : "value of Foo"</span>
+<span class="hljs-comment">//         },</span>
+<span class="hljs-comment">//         "b" : {</span>
+<span class="hljs-comment">//           "N" : "150"</span>
 <span class="hljs-comment">//         }</span>
 <span class="hljs-comment">//       }</span>
 <span class="hljs-comment">//     }</span>
 <span class="hljs-comment">//   }</span>
 <span class="hljs-comment">// }</span>
 </code></pre>
-<p>We'd like to keep the nesting in our code, but not in Dynamo.<br>
-Here's one way to do it by changing the schema for <code>msg</code> to a <code>String</code>
-and changing the accessor and constructor functions accordingly.
-We will use <code>for</code> for convenience.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.record[<span class="hljs-type">Error</span>] { field =&gt;
-  <span class="hljs-keyword">for</span> {
-    code &lt;- field(<span class="hljs-string">"code"</span>, <span class="hljs-type">Schema</span>.num, _.code)
-    msg &lt;- field(<span class="hljs-string">"msg"</span>, <span class="hljs-type">Schema</span>.str, _.msg.value)
-  } <span class="hljs-keyword">yield</span> <span class="hljs-type">Error</span>(code, <span class="hljs-type">Msg</span>(msg))
-}.write(errMsg)
-<span class="hljs-comment">// res17: io.circe.Json = {</span>
+<p></details></p>
+<p>A particularly common scenario is wrapping an entire schema in a
+record with a single key, so <code>dynosaur</code> exposes a <code>tag</code> method on
+<code>Schema</code> for this purpose.</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> taggedSchema = envelopeSchema.tag(<span class="hljs-string">"event"</span>)
+</code></pre>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala">taggedSchema.write(<span class="hljs-type">Foo</span>(<span class="hljs-string">"value of Foo"</span>, <span class="hljs-number">150</span>))
+<span class="hljs-comment">// res13: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
-<span class="hljs-comment">//     "code" : {</span>
-<span class="hljs-comment">//       "N" : "2"</span>
-<span class="hljs-comment">//     },</span>
-<span class="hljs-comment">//     "msg" : {</span>
-<span class="hljs-comment">//       "S" : "problem"</span>
+<span class="hljs-comment">//     "event" : {</span>
+<span class="hljs-comment">//       "M" : {</span>
+<span class="hljs-comment">//         "eventId" : {</span>
+<span class="hljs-comment">//           "S" : "14tafet143ba"</span>
+<span class="hljs-comment">//         },</span>
+<span class="hljs-comment">//         "payload" : {</span>
+<span class="hljs-comment">//           "M" : {</span>
+<span class="hljs-comment">//             "a" : {</span>
+<span class="hljs-comment">//               "S" : "value of Foo"</span>
+<span class="hljs-comment">//             },</span>
+<span class="hljs-comment">//             "b" : {</span>
+<span class="hljs-comment">//               "N" : "150"</span>
+<span class="hljs-comment">//             }</span>
+<span class="hljs-comment">//           }</span>
+<span class="hljs-comment">//         }</span>
+<span class="hljs-comment">//       }</span>
 <span class="hljs-comment">//     }</span>
 <span class="hljs-comment">//   }</span>
 <span class="hljs-comment">// }</span>
 </code></pre>
-<h3><a class="anchor" aria-hidden="true" id="extra-information"></a><a href="#extra-information" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Extra information</h3>
-<p>It's easy to add data to the serialised record that isn't present in
-the code representation, because we have the entire <code>Applicative</code> api
-at our disposal.<br>
-Let's add a <code>version: 1.0</code> field to <code>Foo</code> using <code>*&gt;</code>, a variant of
-<code>mapN</code> (also provided by <code>cats</code>) which discards the left-hand side.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
-  field(<span class="hljs-string">"version"</span>, <span class="hljs-type">Schema</span>.str, _ =&gt; <span class="hljs-string">"1.0"</span>) *&gt;
-  (
-    field(<span class="hljs-string">"a"</span>, <span class="hljs-type">Schema</span>.str, _.a),
-    field(<span class="hljs-string">"b"</span>, <span class="hljs-type">Schema</span>.num, _.b)
-  ).mapN(<span class="hljs-type">Foo</span>.apply)
-}.write(<span class="hljs-type">Foo</span>(<span class="hljs-string">"foo"</span>, <span class="hljs-number">345</span>))
-<span class="hljs-comment">// res18: io.circe.Json = {</span>
+<p></details></p>
+<p>Finally, it's worth specifying the meaning of <code>pure</code>, e.g. :</p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>](_.pure(<span class="hljs-type">Foo</span>(<span class="hljs-string">"a"</span>, <span class="hljs-number">1</span>)))
+</code></pre>
+<p>because we have never called <code>field.apply</code>, the resulting schema will
+output the empty record during the encoding phase, and always succeed
+with <code>Foo(&quot;a&quot;, 1)</code> during the decoding phase. As we will see later in
+this document, this behaviour will prove useful when dealing with
+objects in ADTs.</p>
+<h3><a class="anchor" aria-hidden="true" id="constant-fields"></a><a href="#constant-fields" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Constant fields</h3>
+<p>So far, decoding records has been entirely based on the <em>key</em> of each
+field, letting the value be anything that can be converted to the
+desired type. However, sometimes we need to assert that a field
+contains a specific constant, and fail decoding if any other value is
+found.<br>
+Although this logic can be expressed entirely in terms of <code>field.apply</code> and
+<code>imapErr</code>, <code>field</code> offers a dedicated method for this scenario,
+<code>field.const</code>.<br>
+For example, asserting that our <code>Foo</code> has <code>version: 1.0</code> is as simple as:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> versionedFooSchema = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Foo</span>] { field =&gt;
+ field.const(<span class="hljs-string">"version"</span>, <span class="hljs-string">"1.0"</span>) *&gt; (
+   field(<span class="hljs-string">"a"</span>, _.a),
+   field(<span class="hljs-string">"b"</span>, _.b)
+ ).mapN(<span class="hljs-type">Foo</span>.apply)
+}
+</code></pre>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala">versionedFooSchema.write(<span class="hljs-type">Foo</span>(<span class="hljs-string">"value of Foo"</span>, <span class="hljs-number">300</span>))
+<span class="hljs-comment">// res15: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
 <span class="hljs-comment">//     "version" : {</span>
 <span class="hljs-comment">//       "S" : "1.0"</span>
 <span class="hljs-comment">//     },</span>
 <span class="hljs-comment">//     "a" : {</span>
-<span class="hljs-comment">//       "S" : "foo"</span>
+<span class="hljs-comment">//       "S" : "value of Foo"</span>
 <span class="hljs-comment">//     },</span>
 <span class="hljs-comment">//     "b" : {</span>
-<span class="hljs-comment">//       "N" : "345"</span>
+<span class="hljs-comment">//       "N" : "300"</span>
 <span class="hljs-comment">//     }</span>
 <span class="hljs-comment">//   }</span>
 <span class="hljs-comment">// }</span>
 </code></pre>
-<p>In this case is worth specifying something with respect to decoding:
-<code>field(&quot;version&quot;, Schema.str, _ =&gt; &quot;1.0&quot;)</code> means that the record
-<em>must</em> contain a field named <code>&quot;version&quot;</code>, but that the contents of
-that field can be <em>any</em> <code>String</code> (that's what <code>Schema.str</code> means),
-even though when we serialise we put <code>&quot;1.0&quot;</code> there.<br>
-Therefore, parsing <code>Foo</code> with the schema above will fail if the record
-does not contain a field named <code>&quot;version&quot;</code>, but if it does it will
-succeed no matter what the value of that field is, as long as it is a
-<code>String</code>.<br>
-Both the ability to assert that a field may not be there, and that the
-value of a field should be a <em>specific</em> <code>String</code> (or anything else)
-are useful, they are treated further down in this document.</p>
-<h3><a class="anchor" aria-hidden="true" id="constants"></a><a href="#constants" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Constants</h3>
+<p></details></p>
+<p>Note how the resulting record has a <code>version</code> field set to <code>1.0</code>, the
+use of <code>const</code> guarantees that any other value will result in a
+<code>ReadError</code>. Equality is performed using <code>==</code>.</p>
 <h3><a class="anchor" aria-hidden="true" id="case-classes-with-more-than-22-fields"></a><a href="#case-classes-with-more-than-22-fields" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Case classes with more than 22 fields</h3>
 <p>Scala's tuples have a hard limit of 22 elements, so if your case class has
 more than 22 fields you won't be able to call <code>(f1, ..., f23).mapN</code>.<br>
@@ -475,162 +557,214 @@ Just use <code>for</code> for this case:</p>
   } <span class="hljs-keyword">yield</span> <span class="hljs-type">BigClass</span>(f1, .., f23)
 }
 </code></pre>
-<h3><a class="anchor" aria-hidden="true" id="coproducts"></a><a href="#coproducts" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Coproducts</h3>
-<p>Since DynamoDB uses a JSON-like format, there are different ways to
-encode coproducts. The recommended one looks like this:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Auth</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Error</span>(<span class="hljs-params">reason: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Auth</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span>(<span class="hljs-params">id: <span class="hljs-type">Int</span>, name: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Auth</span></span>
+<h3><a class="anchor" aria-hidden="true" id="optional-fields-nullable-values"></a><a href="#optional-fields-nullable-values" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Optional fields &amp; nullable values</h3>
+<p>In order to fully capture the semantics of AttributeValue (which are
+like JSON in this case), <code>dynosaur</code> draws a distinction between
+<em>optional fields</em> and <em>nullable values</em>:</p>
+<ul>
+<li>An optional field may or may not be part of the serialised record,
+but if it's there it cannot be <code>AttributeValue.NULL</code> for decoding to
+succeed.</li>
+<li>A nullable value can be <code>AttributeValue.NULL</code>, but it has to always
+be part of the record for decoding to succeed. It can also appear
+outside of records.</li>
+</ul>
+<p>As a general rule, optional fields should be preferred. They can be
+constructed by calling the <code>opt</code> method on the <code>field</code> builder, which
+is exactly like <code>field.apply</code> except for the accessor function which
+has type <code>Record =&gt; Option[Field]</code> instead of <code>Record =&gt; Field</code>.</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Msg</span>(<span class="hljs-params">body: <span class="hljs-type">String</span>, topic: <span class="hljs-type">Option</span>[<span class="hljs-type">String</span>]</span>)</span>
 
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">error</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">Error</span>] = ???
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">user</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">User</span>] = ???
+<span class="hljs-keyword">val</span> msgSchemaOpt = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Msg</span>] { field =&gt;
+ (
+   field(<span class="hljs-string">"body"</span>, _.body),
+   field.opt(<span class="hljs-string">"topic"</span>, _.topic)
+ ).mapN(<span class="hljs-type">Msg</span>.apply)
+}
 
-<span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>._
+</code></pre>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala">msgSchemaOpt.write(<span class="hljs-type">Msg</span>(<span class="hljs-string">"Topical message"</span>, <span class="hljs-string">"Interesting topic"</span>.some))
+<span class="hljs-comment">// res16: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "body" : {</span>
+<span class="hljs-comment">//       "S" : "Topical message"</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     "topic" : {</span>
+<span class="hljs-comment">//       "S" : "Interesting topic"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+msgSchemaOpt.write(<span class="hljs-type">Msg</span>(<span class="hljs-string">"Random message"</span>, <span class="hljs-type">None</span>))
+<span class="hljs-comment">// res17: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "body" : {</span>
+<span class="hljs-comment">//       "S" : "Random message"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+</code></pre>
+<p></details></p>
+<p>To create a nullable value instead, use <code>field.apply</code> as normal, but
+call <code>_.nullable</code> on the schema passed to it. If you are passing the
+schema implicitly, just pass <code>Schema.nullable</code> instead:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> msgSchemaNull = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Msg</span>] { field =&gt;
+ (
+   field(<span class="hljs-string">"body"</span>, _.body),
+   field(<span class="hljs-string">"topic"</span>, _.topic)(<span class="hljs-type">Schema</span>.nullable)
+ ).mapN(<span class="hljs-type">Msg</span>.apply)
+}
 
-<span class="hljs-keyword">val</span> schema: <span class="hljs-type">Schema</span>[<span class="hljs-type">Auth</span>] = oneOf { alt =&gt;
-  alt(error tag <span class="hljs-string">"error"</span>) |+| alt(user tag <span class="hljs-string">"user"</span>) 
+</code></pre>
+<p>In this case, the call to <code>Schema.nullable</code> translates to <code>Schema[String].nullable</code>.</p>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala">msgSchemaNull.write(<span class="hljs-type">Msg</span>(<span class="hljs-string">"Topical message"</span>, <span class="hljs-string">"Interesting topic"</span>.some))
+<span class="hljs-comment">// res18: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "body" : {</span>
+<span class="hljs-comment">//       "S" : "Topical message"</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     "topic" : {</span>
+<span class="hljs-comment">//       "S" : "Interesting topic"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+msgSchemaNull.write(<span class="hljs-type">Msg</span>(<span class="hljs-string">"Random message"</span>, <span class="hljs-type">None</span>))
+<span class="hljs-comment">// res19: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "body" : {</span>
+<span class="hljs-comment">//       "S" : "Random message"</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     "topic" : {</span>
+<span class="hljs-comment">//       "NULL" : true</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+</code></pre>
+<p></details></p>
+<blockquote>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Because of the choice between optionality and nullability, there
+is no inductive implicit instance of <code>Schema</code> for <code>Option</code>. Schema
+has an implicitNotFound annotation to warn you to use <code>opt</code> or
+<code>nullable</code></li>
+<li>If desired, one can be lenient and accept both missing and null fields.
+The following code favours missing fields on writes, but accepts both on reads:
+<pre><code class="hljs css language-scala">field
+.opt(<span class="hljs-string">"topic"</span>, _.topic.map(_.some))(<span class="hljs-type">Schema</span>.nullable)
+.map(_.flatten)
+</code></pre>
+whereas this one favours null fields on writes, equally accepting both on reads:
+<pre><code class="hljs css language-scala">field
+.opt(<span class="hljs-string">"topic"</span>, _.topic.some)(<span class="hljs-type">Schema</span>.nullable)
+.map(_.flatten)
+</code></pre>
+These cases are rare enough, and at moment <code>dynosaur</code> does not offer a shortcut for them.</li>
+</ul>
+</blockquote>
+<h2><a class="anchor" aria-hidden="true" id="coproducts"></a><a href="#coproducts" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Coproducts</h2>
+<p>Let's now move on to coproducts, by looking at this basic ADT:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Basic</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">One</span>(<span class="hljs-params">s: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Basic</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Two</span>(<span class="hljs-params">n: <span class="hljs-type">Int</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Basic</span></span>
+</code></pre>
+<p>with the corresponding schema:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> basicADTSchema = <span class="hljs-type">Schema</span>.oneOf[<span class="hljs-type">Basic</span>] { alt =&gt;
+  <span class="hljs-keyword">val</span> one = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">One</span>]{ field =&gt; field(<span class="hljs-string">"s"</span>, _.s).map(<span class="hljs-type">One</span>.apply) }
+  <span class="hljs-keyword">val</span> two = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Two</span>]{ field =&gt; field(<span class="hljs-string">"n"</span>, _.n).map(<span class="hljs-type">Two</span>.apply) }
+
+  alt(one) |+| alt(two)
 }
 </code></pre>
-<p>The first thing we need to make this work is a way to go from
-<code>Schema[Subtype]</code> to <code>Schema[Supertype]</code>, which we can do by
-introducing the concept of a <code>Prism</code>.<br>
-Let's focus on <code>Error</code> and <code>Auth</code>, starting with decoding: if you have
-a <code>Decoder[Error]</code> and you need a <code>Decoder[Auth]</code>, it means that after
-you decoded an <code>Error</code>, you need to transform it into an <code>Auth</code>, i.e.
-you need a <code>Error =&gt; Auth</code>.<br>
-The other direction however, is a bit different: if you have an
-<code>Encoder[Error]</code> and you want to build an <code>Encoder[Auth]</code>, you first
-need to figure out if the <code>Auth</code> you have is indeed an <code>Error</code> (and not a
-<code>User</code>), and only then you can use the encoder for errors that you
-have. This decision can be represented with a <code>Auth =&gt; Option[Error]</code>.</p>
-<p>Given that a <code>Schema</code> needs to produce both an <code>Encoder</code> and a <code>Decoder</code>,
-we need to have both functions, which as it turns out form a well-known
-abstraction called <code>Prism</code>. <code>Dynosaur</code> defines a very simple <code>Prism</code> as:</p>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> one = <span class="hljs-type">One</span>(<span class="hljs-string">"this is one"</span>)
+<span class="hljs-comment">// one: One = One(this is one)</span>
+<span class="hljs-keyword">val</span> two = <span class="hljs-type">Two</span>(<span class="hljs-number">4</span>)
+<span class="hljs-comment">// two: Two = Two(4)</span>
+
+basicADTSchema.write(one)
+<span class="hljs-comment">// res20: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "s" : {</span>
+<span class="hljs-comment">//       "S" : "this is one"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+basicADTSchema.read(basicADTSchema.write(one))
+<span class="hljs-comment">// res21: Basic = One(this is one)</span>
+basicADTSchema.write(two)
+<span class="hljs-comment">// res22: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "n" : {</span>
+<span class="hljs-comment">//       "N" : "4"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+basicADTSchema.read(basicADTSchema.write(two))
+<span class="hljs-comment">// res23: Basic = Two(4)</span>
+</code></pre>
+<p></details></p>
+<p>The definitions of <code>one</code> and <code>two</code> should be unsurprising, but we need
+an additional combinator to express the concept of <em>choice</em>,
+<code>Schema.oneOf</code>:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>.oneOf[<span class="hljs-type">Basic</span>] { alt =&gt; }
+</code></pre>
+<p>Which states that <code>Basic</code> is a coproducts of several alternatives,
+defined through the <code>alt</code> builder. The computations returned by <code>alt</code>
+are monoids, so we can combine them through <code>|+|</code> to mean &quot;orElse&quot;.
+The <code>alt</code> builder takes two arguments:</p>
+<ul>
+<li><p>The schema of the alternative, for example <code>Schema[One]</code></p></li>
+<li><p>An implicit <code>Prism[Basic, One]</code>, where <code>Prism</code> is defined by</p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Prism</span>[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>](<span class="hljs-params">tryGet: <span class="hljs-type">A</span> =&gt; <span class="hljs-type">Option</span>[<span class="hljs-type">B</span>], inject: <span class="hljs-type">B</span> =&gt; <span class="hljs-type">A</span></span>)</span>
-</code></pre>
-<p>One can define <code>Prism</code>s for several things, but the one between an ADT
-and one of its cases is particularly common and straighforward.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> dynosaur.codec.<span class="hljs-type">Prism</span>
-
-<span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">A</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">B</span>(<span class="hljs-params"></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
-
-<span class="hljs-keyword">val</span> p: <span class="hljs-type">Prism</span>[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>] = <span class="hljs-type">Prism</span>.fromPartial[<span class="hljs-type">A</span>, <span class="hljs-type">B</span>] {
-  <span class="hljs-keyword">case</span> b: <span class="hljs-type">B</span> =&gt; b
-}(b =&gt; b: <span class="hljs-type">A</span>)
-</code></pre>
-<p>In fact, it is so common that <code>Dynosaur</code> can derive it automatically
-if you ask for one implicitly:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> dynosaur.codec.<span class="hljs-type">Prism</span>
-
-<span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">PrismExample</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Case1</span>(<span class="hljs-params">v: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">PrismExample</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Case2</span>(<span class="hljs-params">i: <span class="hljs-type">Int</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">PrismExample</span></span>
-
-<span class="hljs-keyword">val</span> c1: <span class="hljs-type">PrismExample</span> = <span class="hljs-type">Case1</span>(<span class="hljs-string">"hello"</span>)
-<span class="hljs-comment">// c1: PrismExample = Case1("hello")</span>
-
-<span class="hljs-keyword">val</span> p = implicitly[<span class="hljs-type">Prism</span>[<span class="hljs-type">PrismExample</span>, <span class="hljs-type">Case1</span>]]
-<span class="hljs-comment">// p: Prism[PrismExample, Case1] = Prism(&lt;function1&gt;, &lt;function1&gt;)</span>
-
-p.tryGet(c1).map(_.v)
-<span class="hljs-comment">// res22: Option[String] = Some("hello")</span>
-p.inject(<span class="hljs-type">Case1</span>(<span class="hljs-string">"yes"</span>))
-<span class="hljs-comment">// res23: PrismExample = Case1("yes")</span>
-p.tryGet(<span class="hljs-type">Case2</span>(<span class="hljs-number">3</span>))
-<span class="hljs-comment">// res24: Option[Case1] = None</span>
-</code></pre>
-<p>So we know how to write a schema for the individual cases, we know
-that <code>Prism</code> encodes their relationship with the supertype, all that's
-left is a concept of choice, which is expressed by the <code>alt</code>
-constructor.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> cats.data.<span class="hljs-type">Chain</span>
-<span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>.structure.<span class="hljs-type">Alt</span>
-
-<span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Auth</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Error</span>(<span class="hljs-params">reason: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Auth</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span>(<span class="hljs-params">id: <span class="hljs-type">Int</span>, name: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Auth</span></span>
-
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">error</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">Error</span>] = ???
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">user</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">User</span>] = ???
-
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">errorCase</span></span>: <span class="hljs-type">Chain</span>[<span class="hljs-type">Alt</span>[<span class="hljs-type">Auth</span>]] = <span class="hljs-type">Schema</span>.alt(error)
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">userCase</span></span>: <span class="hljs-type">Chain</span>[<span class="hljs-type">Alt</span>[<span class="hljs-type">Auth</span>]] = <span class="hljs-type">Schema</span>.alt(user)
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">allCases</span></span>: <span class="hljs-type">Chain</span>[<span class="hljs-type">Alt</span>[<span class="hljs-type">Auth</span>]] = errorCase |+| userCase
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">authSchema</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">Auth</span>] = <span class="hljs-type">Schema</span>.alternatives(allCases)
-</code></pre>
-<p>In the above snippet:</p>
-<ul>
-<li><code>Chain[Alt[Auth]]</code> is the type of computations that express <em>choice
-between subtypes of <code>Auth</code></em>.</li>
-<li><code>alt</code> takes as arguments the schema of the subtype and an implicit,
-automatically derived <code>Prism</code>.</li>
-<li>The <code>Monoid</code> instance for <code>Chain</code> expresses choice using <code>|+|</code> to mean &quot;or&quot;</li>
-<li>The <code>Schema.alternatives</code> constructor builds a schema out of a set of choices</li>
+</code></pre></li>
 </ul>
-<p>When encoding, we will do the equivalent of pattern matching to select
-the right encoder. When decoding, we will try each decoder until we
-find a successful one, or fail if none of the alternatives
-successfully decodes our data. In a following section we will see how
-to minimise the work decoders have to do.</p>
-<p><strong>Note</strong>: Unfortunately, it's up to you to make sure that you cover
-all the cases of the ADT in your chain of <code>|+|</code>. If you don't,
-encoding will graciously fail if you try to encode a case you have not
-covered. We do not have a way to express the equivalent of a pattern
-matching exhaustiveness check.</p>
-<h3><a class="anchor" aria-hidden="true" id="inference"></a><a href="#inference" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Inference</h3>
-<p>Similarly to products, coproducts expressed as above also suffer from
-extra annotation clutter, and we employ a similar fix, compare
-<code>clutter</code> to <code>noClutter</code> in the snippet below:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Auth</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Error</span>(<span class="hljs-params">reason: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Auth</span></span>
-<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">User</span>(<span class="hljs-params">id: <span class="hljs-type">Int</span>, name: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Auth</span></span>
-
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">error</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">Error</span>] = ???
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">user</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">User</span>] = ???
-
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">clutter</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">Auth</span>] = <span class="hljs-type">Schema</span>.alternatives {
-  <span class="hljs-type">Schema</span>.alt[<span class="hljs-type">Auth</span>](error) |+| <span class="hljs-type">Schema</span>.alt[<span class="hljs-type">Auth</span>](user)
-}
-
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">noClutter</span></span>: <span class="hljs-type">Schema</span>[<span class="hljs-type">Auth</span>] = <span class="hljs-type">Schema</span>.oneOf { alt =&gt;
-  alt(error) |+| alt(user)
-}
-
-<span class="hljs-comment">// note the [Auth] annotation</span>
-<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">noClutter2</span> </span>= <span class="hljs-type">Schema</span>.oneOf[<span class="hljs-type">Auth</span>] { alt =&gt;
-  alt(error) |+| alt(user)
-}
-</code></pre>
-<h3><a class="anchor" aria-hidden="true" id="tagging"></a><a href="#tagging" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Tagging</h3>
-<p>In the example above we simply composed the schemas of the subtypes
-with <code>|+|</code>, with no further modifications.<br>
-This can work in simple cases, but it has two drawbacks:</p>
+<blockquote>
+<p><strong>Notes:</strong></p>
 <ul>
-<li>A decoder might have to do a lot of work decoding a bunch of fields,
-before realising it needs to fallback to the next one.</li>
-<li>It's not possible to distinguish between two cases with the same
-representation.</li>
+<li><code>dynosaur</code> derives prisms automatically for ADTs, you don't need to do anything.</li>
+<li>The same inference considerations of <code>record[Foo]</code> apply to <code>oneOf[Basic]</code>.</li>
+<li>You need to make sure you handle all cases in <code>oneOf</code>, if you
+forget to handle one, encoding will gracefully fail with a <code>WriteError</code>.</li>
 </ul>
-<p>Here is a quick example of the second issue:</p>
+</blockquote>
+<p>To see how the <code>Prism</code> shape arises when dealing with choice, consider this:</p>
+<ul>
+<li>When decoding, we need to always transform the variant we have
+successfully decoded (e.g. <code>One</code>) into the coproduct (in this case
+<code>Basic</code>). This can be expressed as <code>B =&gt; A</code></li>
+<li>When encoding, for each case we need to check whether the coproduct
+actually matches the given case (e.g. if it's <code>One</code> or not).  This
+can be expressed as <code>A =&gt; Option[B]</code>.</li>
+<li>A <code>Prism</code> packages these two functions into one entity, and gives us
+a structure for composition: when encoding, we will do the
+equivalent of pattern matching to select the right encoder. When
+decoding, we will try each decoder until we find a successful one,
+or fail if none of the alternatives successfully decodes our data.</li>
+</ul>
+<p>The semantics described above are enough to encode <em>choice</em>, but there
+is a final issue to solve: <em>ambiguity</em>. Consider this:</p>
 <pre><code class="hljs css language-scala"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">A</span></span>
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">B</span>(<span class="hljs-params">v: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C</span>(<span class="hljs-params">v: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">A</span></span>
 
 <span class="hljs-keyword">val</span> ambiguous: <span class="hljs-type">Schema</span>[<span class="hljs-type">A</span>] = <span class="hljs-type">Schema</span>.oneOf { alt =&gt;
-  <span class="hljs-keyword">val</span> b: <span class="hljs-type">Schema</span>[<span class="hljs-type">B</span>] = <span class="hljs-type">Schema</span>.record { field =&gt;
-   field(<span class="hljs-string">"v"</span>, <span class="hljs-type">Schema</span>.str, _.v).map(<span class="hljs-type">B</span>.apply)
-  }
-  <span class="hljs-keyword">val</span> c: <span class="hljs-type">Schema</span>[<span class="hljs-type">C</span>] = <span class="hljs-type">Schema</span>.record { field =&gt;
-   field(<span class="hljs-string">"v"</span>, <span class="hljs-type">Schema</span>.str, _.v).map(<span class="hljs-type">C</span>.apply)
-  }
-  
+  <span class="hljs-keyword">val</span> b: <span class="hljs-type">Schema</span>[<span class="hljs-type">B</span>] = <span class="hljs-type">Schema</span>.record { field =&gt; field(<span class="hljs-string">"v"</span>, _.v).map(<span class="hljs-type">B</span>.apply) }
+  <span class="hljs-keyword">val</span> c: <span class="hljs-type">Schema</span>[<span class="hljs-type">C</span>] = <span class="hljs-type">Schema</span>.record { field =&gt; field(<span class="hljs-string">"v"</span>, _.v).map(<span class="hljs-type">C</span>.apply) }
+
   alt(b) |+| alt(c)
 }
 </code></pre>
-<p><code>a</code> needs to distinguish between <code>b</code> and <code>c</code> when decoding, but their encoded form is the same:</p>
+<p><code>a</code> needs to distinguish between <code>b</code> and <code>c</code> when decoding, but their
+encoded form is the same:</p>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
 <pre><code class="hljs css language-scala">ambiguous.write(<span class="hljs-type">B</span>(<span class="hljs-string">"hello"</span>))
-<span class="hljs-comment">// res27: io.circe.Json = {</span>
+<span class="hljs-comment">// res25: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
 <span class="hljs-comment">//     "v" : {</span>
 <span class="hljs-comment">//       "S" : "hello"</span>
@@ -638,82 +772,327 @@ representation.</li>
 <span class="hljs-comment">//   }</span>
 <span class="hljs-comment">// }</span>
 ambiguous.write(<span class="hljs-type">C</span>(<span class="hljs-string">"hello"</span>))
-<span class="hljs-comment">// res28: io.circe.Json = {</span>
+<span class="hljs-comment">// res26: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
 <span class="hljs-comment">//     "v" : {</span>
 <span class="hljs-comment">//       "S" : "hello"</span>
 <span class="hljs-comment">//     }</span>
 <span class="hljs-comment">//   }</span>
 <span class="hljs-comment">// }</span>
+ambiguous.read(ambiguous.write(<span class="hljs-type">C</span>(<span class="hljs-string">"hello"</span>))) <span class="hljs-comment">// gives incorrect result</span>
+<span class="hljs-comment">// res27: A = B(hello)</span>
 </code></pre>
-<p>Therefore we need a way to <em>tag</em> each schema before using <code>|+|</code> to
-clearly distinguish between them. As a bonus, the decoder has to do
-(potentially a lot) less work because it can fallback to the next case
-after analysing only the tag, instead of the whole record.</p>
-<p>There are various strategies for tagging, the one we recommend is to
-create a record with one key corresponding to the name of the
-coproduct case, like so:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> tagged: <span class="hljs-type">Schema</span>[<span class="hljs-type">A</span>] = <span class="hljs-type">Schema</span>.oneOf { alt =&gt;
-  <span class="hljs-comment">// same as before</span>
-  <span class="hljs-keyword">val</span> b: <span class="hljs-type">Schema</span>[<span class="hljs-type">B</span>] = <span class="hljs-type">Schema</span>.record { field =&gt;
-   field(<span class="hljs-string">"v"</span>, <span class="hljs-type">Schema</span>.str, _.v).map(<span class="hljs-type">B</span>.apply)
-  }
-  <span class="hljs-keyword">val</span> c: <span class="hljs-type">Schema</span>[<span class="hljs-type">C</span>] = <span class="hljs-type">Schema</span>.record { field =&gt;
-   field(<span class="hljs-string">"v"</span>, <span class="hljs-type">Schema</span>.str, _.v).map(<span class="hljs-type">C</span>.apply)
-  }
-  <span class="hljs-comment">// but we tag them</span>
-  <span class="hljs-keyword">val</span> taggedB = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">B</span>] { field =&gt;
-    field(<span class="hljs-string">"b"</span>, b, x =&gt; x)
-  }
-  <span class="hljs-keyword">val</span> taggedC = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">C</span>] { field =&gt;
-    field(<span class="hljs-string">"c"</span>, c, x =&gt; x)
-  }
-  <span class="hljs-comment">// using the tags</span>
-  alt(taggedB) |+| alt(taggedC)
+<p></details></p>
+<p><code>dynosaur</code> is expressing enough to solve this problem in several ways,
+in this document we will have a look at two possible strategies:
+<strong>discriminator keys</strong> and <strong>discriminator fields</strong>.</p>
+<h3><a class="anchor" aria-hidden="true" id="discriminator-keys"></a><a href="#discriminator-keys" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Discriminator keys</h3>
+<p>We will use this ADT as our running example:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">sealed</span> <span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Problem</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Error</span>(<span class="hljs-params">msg: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Problem</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Warning</span>(<span class="hljs-params">msg: <span class="hljs-type">String</span></span>) <span class="hljs-keyword">extends</span> <span class="hljs-title">Problem</span></span>
+<span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Unknown</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Problem</span></span>
+</code></pre>
+<p>and once again, <code>Error</code> and <code>Warning</code> exhibit ambiguity:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> err = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Error</span>] { field =&gt;
+  field(<span class="hljs-string">"msg"</span>, _.msg).map(<span class="hljs-type">Error</span>.apply)
+}
+<span class="hljs-keyword">val</span> warn = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Warning</span>] { field =&gt;
+  field(<span class="hljs-string">"msg"</span>, _.msg).map(<span class="hljs-type">Warning</span>.apply)
 }
 </code></pre>
-<p>Which results in correct behaviour:</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> out = tagged.write(<span class="hljs-type">B</span>(<span class="hljs-string">"hello"</span>))
-<span class="hljs-comment">// out: io.circe.Json = {</span>
+<p>The discriminator key strategy simply consists in wrapping each case
+in a single-field record, whose key is the name of the case.
+We have already seen a combinator that can do this, the <code>tag</code> method
+on <code>Schema</code>:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> err = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Error</span>] { field =&gt;
+  field(<span class="hljs-string">"msg"</span>, _.msg).map(<span class="hljs-type">Error</span>.apply)
+}.tag(<span class="hljs-string">"error"</span>)
+
+<span class="hljs-keyword">val</span> warn = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Warning</span>] { field =&gt;
+  field(<span class="hljs-string">"msg"</span>, _.msg).map(<span class="hljs-type">Warning</span>.apply)
+}.tag(<span class="hljs-string">"warning"</span>)
+</code></pre>
+<p>Now the two records have different keys (&quot;error&quot; vs &quot;warning&quot;), and
+decoding is no longer ambiguous.<br>
+The final question is how to encode <code>Unknown</code>, we need to <code>tag</code> a
+schema that produces an empty record on encoding, and always succeeds
+with <code>Unknown</code> on decoding, but as we saw in the <code>Additional structure</code> section, these are <em>exactly</em> the semantics of <code>field.pure</code>:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> unknown = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Unknown</span>.<span class="hljs-keyword">type</span>](_.pure(<span class="hljs-type">Unknown</span>)).tag(<span class="hljs-string">"unknown"</span>)
+</code></pre>
+<p>The final schema looks like this:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> schemaWithKey = <span class="hljs-type">Schema</span>.oneOf[<span class="hljs-type">Problem</span>] { alt =&gt;
+  <span class="hljs-keyword">val</span> err = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Error</span>] { field =&gt;
+    field(<span class="hljs-string">"msg"</span>, _.msg).map(<span class="hljs-type">Error</span>.apply)
+  }.tag(<span class="hljs-string">"error"</span>)
+
+  <span class="hljs-keyword">val</span> warn = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Warning</span>] { field =&gt;
+    field(<span class="hljs-string">"msg"</span>, _.msg).map(<span class="hljs-type">Warning</span>.apply)
+  }.tag(<span class="hljs-string">"warning"</span>)
+
+  <span class="hljs-keyword">val</span> unknown = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Unknown</span>.<span class="hljs-keyword">type</span>] { field =&gt;
+    field.pure(<span class="hljs-type">Unknown</span>)
+  }.tag(<span class="hljs-string">"unknown"</span>)
+
+  alt(err) |+| alt(warn) |+| alt(unknown)
+}
+
+</code></pre>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> error = <span class="hljs-type">Error</span>(<span class="hljs-string">"this is an error"</span>)
+<span class="hljs-comment">// error: Error = Error(this is an error)</span>
+<span class="hljs-keyword">val</span> warning = <span class="hljs-type">Warning</span>(<span class="hljs-string">"this is a warning"</span>)
+<span class="hljs-comment">// warning: Warning = Warning(this is a warning)</span>
+
+schemaWithKey.write(error)
+<span class="hljs-comment">// res31: io.circe.Json = {</span>
 <span class="hljs-comment">//   "M" : {</span>
-<span class="hljs-comment">//     "b" : {</span>
+<span class="hljs-comment">//     "error" : {</span>
 <span class="hljs-comment">//       "M" : {</span>
-<span class="hljs-comment">//         "v" : {</span>
-<span class="hljs-comment">//           "S" : "hello"</span>
+<span class="hljs-comment">//         "msg" : {</span>
+<span class="hljs-comment">//           "S" : "this is an error"</span>
 <span class="hljs-comment">//         }</span>
 <span class="hljs-comment">//       }</span>
 <span class="hljs-comment">//     }</span>
 <span class="hljs-comment">//   }</span>
 <span class="hljs-comment">// }</span>
-tagged.read(out)
-<span class="hljs-comment">// res29: A = B(hello)</span>
+schemaWithKey.read(schemaWithKey.write(error))
+<span class="hljs-comment">// res32: Problem = Error(this is an error)</span>
+schemaWithKey.write(warning)
+<span class="hljs-comment">// res33: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "warning" : {</span>
+<span class="hljs-comment">//       "M" : {</span>
+<span class="hljs-comment">//         "msg" : {</span>
+<span class="hljs-comment">//           "S" : "this is a warning"</span>
+<span class="hljs-comment">//         }</span>
+<span class="hljs-comment">//       }</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+schemaWithKey.read(schemaWithKey.write(warning))
+<span class="hljs-comment">// res34: Problem = Warning(this is a warning)</span>
+schemaWithKey.write(<span class="hljs-type">Unknown</span>)
+<span class="hljs-comment">// res35: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "unknown" : {</span>
+<span class="hljs-comment">//       "M" : {</span>
+<span class="hljs-comment">//         </span>
+<span class="hljs-comment">//       }</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+schemaWithKey.read(schemaWithKey.write(<span class="hljs-type">Unknown</span>))
+<span class="hljs-comment">// res36: Problem = Unknown</span>
 </code></pre>
-<p>This is common enough to be worth a <code>tag</code> method on <code>Schema</code>, which is what
-you saw in the initial example.</p>
-<pre><code class="hljs css language-scala"><span class="hljs-keyword">import</span> <span class="hljs-type">Schema</span>._
+<p></details></p>
+<blockquote>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>The discriminator key encoding is simple and convenient, but cannot
+be used if your ADT is at the top level in your table, because
+DynamoDB does not support attributes of type <code>M</code> as partition keys.</li>
+</ul>
+</blockquote>
+<h3><a class="anchor" aria-hidden="true" id="discriminator-field"></a><a href="#discriminator-field" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Discriminator field</h3>
+<p>In the discriminator field approach, each record adds an additional
+field (for example called &quot;type&quot;) to disambiguate.<br>
+The only thing to note is the use of <code>field.const</code> to make sure
+decoding succeeds or fails based on the <em>specific value</em> of the field,
+and not just the fact that there is a field called &quot;type&quot; whose value
+is a <code>String</code>. The rest just uses straightforward combinators from cats:
+<code>map</code>, <code>*&gt;</code>,<code>as</code>.</p>
+<p>The schema looks like this:</p>
+<pre><code class="hljs css language-scala"><span class="hljs-keyword">val</span> schemaWithField = <span class="hljs-type">Schema</span>.oneOf[<span class="hljs-type">Problem</span>] { alt =&gt;
+  <span class="hljs-keyword">val</span> err = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Error</span>] { field =&gt;
+     field.const(<span class="hljs-string">"type"</span>, <span class="hljs-string">"error"</span>) *&gt; field(<span class="hljs-string">"msg"</span>, _.msg).map(<span class="hljs-type">Error</span>.apply)
+  }
 
-<span class="hljs-keyword">val</span> betterTagged: <span class="hljs-type">Schema</span>[<span class="hljs-type">A</span>] = oneOf { alt =&gt;
-  <span class="hljs-keyword">val</span> b = record[<span class="hljs-type">B</span>] { field =&gt;
-   field(<span class="hljs-string">"v"</span>, str, _.v).map(<span class="hljs-type">B</span>.apply)
+  <span class="hljs-keyword">val</span> warn = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Warning</span>] { field =&gt;
+    field.const(<span class="hljs-string">"type"</span>, <span class="hljs-string">"warning"</span>) *&gt; field(<span class="hljs-string">"msg"</span>, _.msg).map(<span class="hljs-type">Warning</span>.apply)
   }
-  <span class="hljs-keyword">val</span> c = record[<span class="hljs-type">C</span>] { field =&gt;
-   field(<span class="hljs-string">"v"</span>, str, _.v).map(<span class="hljs-type">C</span>.apply)
+
+  <span class="hljs-keyword">val</span> unknown = <span class="hljs-type">Schema</span>.record[<span class="hljs-type">Unknown</span>.<span class="hljs-keyword">type</span>] { field =&gt;
+    field.const(<span class="hljs-string">"type"</span>, <span class="hljs-string">"unknown"</span>).as(<span class="hljs-type">Unknown</span>)
   }
-  
-  alt(b tag <span class="hljs-string">"b"</span>) |+| alt(c tag <span class="hljs-string">"c"</span>)
+
+  alt(err) |+| alt(warn) |+| alt(unknown)
 }
 </code></pre>
-<h3><a class="anchor" aria-hidden="true" id="flexible-tagging"></a><a href="#flexible-tagging" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Flexible tagging</h3>
-<p>The tagging schema above is the recommended one, but by no means the
-only way to do it, here is another common way by having a record with
-a field named &quot;type&quot; to discriminate, and a field &quot;payload&quot; for the
-actual content.</p>
-<p>TODO once I have constants</p>
-<h3><a class="anchor" aria-hidden="true" id="encoding-objects"></a><a href="#encoding-objects" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Encoding objects</h3>
-<p>You can encode object as empty records or Strings</p>
-<h3><a class="anchor" aria-hidden="true" id="optional"></a><a href="#optional" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Optional</h3>
-<p>When reading if will retun None on <code>Nil</code> or missing key, when writing you decide</p>
-<h3><a class="anchor" aria-hidden="true" id="defaults-on-error"></a><a href="#defaults-on-error" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Defaults on error</h3>
-<p>withDefault</p>
-<h3><a class="anchor" aria-hidden="true" id="sequences"></a><a href="#sequences" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sequences</h3>
-</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/dynosaur/docs/overview"><span class="arrow-prev">← </span><span>Overview</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#quick-example">Quick example</a></li><li><a href="#motivation">Motivation</a></li><li><a href="#schema">Schema</a><ul class="toc-headings"><li><a href="#records">Records</a></li><li><a href="#nested-records">Nested records</a></li><li><a href="#flattening-records">Flattening records</a></li><li><a href="#extra-information">Extra information</a></li><li><a href="#constants">Constants</a></li><li><a href="#case-classes-with-more-than-22-fields">Case classes with more than 22 fields</a></li><li><a href="#coproducts">Coproducts</a></li><li><a href="#inference">Inference</a></li><li><a href="#tagging">Tagging</a></li><li><a href="#flexible-tagging">Flexible tagging</a></li><li><a href="#encoding-objects">Encoding objects</a></li><li><a href="#optional">Optional</a></li><li><a href="#defaults-on-error">Defaults on error</a></li><li><a href="#sequences">Sequences</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><hr class="separator"/><section class="copyright">Copyright © 2018-2019 OVO Energy Limited.</section></footer></div></body></html>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala">schemaWithField.write(error)
+<span class="hljs-comment">// res37: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "type" : {</span>
+<span class="hljs-comment">//       "S" : "error"</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     "msg" : {</span>
+<span class="hljs-comment">//       "S" : "this is an error"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+schemaWithField.read(schemaWithField.write(error))
+<span class="hljs-comment">// res38: Problem = Error(this is an error)</span>
+schemaWithField.write(warning)
+<span class="hljs-comment">// res39: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "type" : {</span>
+<span class="hljs-comment">//       "S" : "warning"</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     "msg" : {</span>
+<span class="hljs-comment">//       "S" : "this is a warning"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+schemaWithField.read(schemaWithField.write(warning))
+<span class="hljs-comment">// res40: Problem = Warning(this is a warning)</span>
+schemaWithField.write(<span class="hljs-type">Unknown</span>)
+<span class="hljs-comment">// res41: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "type" : {</span>
+<span class="hljs-comment">//       "S" : "unknown"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+schemaWithField.read(schemaWithField.write(<span class="hljs-type">Unknown</span>))
+<span class="hljs-comment">// res42: Problem = Unknown</span>
+</code></pre>
+<p></details></p>
+<blockquote>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>The same idea behind this encoding can be used for other scenarios
+as well, for example you could use a <code>version</code> field in conjuction
+with <code>alt</code> to support multiple versions of the same data in a
+single table.</li>
+</ul>
+</blockquote>
+<h2><a class="anchor" aria-hidden="true" id="sequences-and-maps"></a><a href="#sequences-and-maps" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Sequences and Maps</h2>
+<p><code>dynosaur</code> exposes implicit inductive instances for <code>List[A]</code>,
+<code>Vector[A]</code> and <code>Seq[A]</code>, provided there is a <code>Schema[A]</code> in scope.
+If you are passing schemas explicitly, you can call <code>asList</code>,
+<code>asVector</code> or <code>asSeq</code> on a <code>Schema[A]</code> to obtain the corresponding
+<code>Schema[Collection[A]]</code>.
+The are all represented as <code>L</code> in <code>AttributeValue</code>:</p>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>[<span class="hljs-type">Vector</span>[<span class="hljs-type">Int</span>]].write(<span class="hljs-type">Vector</span>(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>))
+<span class="hljs-comment">// res43: io.circe.Json = {</span>
+<span class="hljs-comment">//   "L" : [</span>
+<span class="hljs-comment">//     {</span>
+<span class="hljs-comment">//       "N" : "1"</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     {</span>
+<span class="hljs-comment">//       "N" : "2"</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     {</span>
+<span class="hljs-comment">//       "N" : "3"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   ]</span>
+<span class="hljs-comment">// }</span>
+fooSchema.asList.write(<span class="hljs-type">List</span>(<span class="hljs-type">Foo</span>(<span class="hljs-string">"a"</span>, <span class="hljs-number">1</span>), <span class="hljs-type">Foo</span>(<span class="hljs-string">"b"</span>, <span class="hljs-number">2</span>), <span class="hljs-type">Foo</span>(<span class="hljs-string">"c"</span>, <span class="hljs-number">3</span>)))
+<span class="hljs-comment">// res44: io.circe.Json = {</span>
+<span class="hljs-comment">//   "L" : [</span>
+<span class="hljs-comment">//     {</span>
+<span class="hljs-comment">//       "M" : {</span>
+<span class="hljs-comment">//         "a" : {</span>
+<span class="hljs-comment">//           "S" : "a"</span>
+<span class="hljs-comment">//         },</span>
+<span class="hljs-comment">//         "b" : {</span>
+<span class="hljs-comment">//           "N" : "1"</span>
+<span class="hljs-comment">//         }</span>
+<span class="hljs-comment">//       }</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     {</span>
+<span class="hljs-comment">//       "M" : {</span>
+<span class="hljs-comment">//         "a" : {</span>
+<span class="hljs-comment">//           "S" : "b"</span>
+<span class="hljs-comment">//         },</span>
+<span class="hljs-comment">//         "b" : {</span>
+<span class="hljs-comment">//           "N" : "2"</span>
+<span class="hljs-comment">//         }</span>
+<span class="hljs-comment">//       }</span>
+<span class="hljs-comment">//     },</span>
+<span class="hljs-comment">//     {</span>
+<span class="hljs-comment">//       "M" : {</span>
+<span class="hljs-comment">//         "a" : {</span>
+<span class="hljs-comment">//           "S" : "c"</span>
+<span class="hljs-comment">//         },</span>
+<span class="hljs-comment">//         "b" : {</span>
+<span class="hljs-comment">//           "N" : "3"</span>
+<span class="hljs-comment">//         }</span>
+<span class="hljs-comment">//       }</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   ]</span>
+<span class="hljs-comment">// }</span>
+</code></pre>
+<p></details></p>
+<p>Note that bytes do not fit the above description: the library has
+separate instances for <code>Array[Byte]</code> and <code>scodec.bits.ByteVector</code>, and
+both are represented as <code>B</code> in <code>AttributeValue</code>. This requires the
+bytes to be base 64 encoded/decoded , which is done automatically for
+you.</p>
+<p>As with sequences, there is an inductive instance of
+<code>Schema[Map[String, A]]</code> given <code>Schema[A]</code>, also available by calling
+<code>asMap</code> on a schema.</p>
+<p><details>
+<summary>Click to show the resulting AttributeValue</summary></p>
+<pre><code class="hljs css language-scala"><span class="hljs-type">Schema</span>[<span class="hljs-type">Map</span>[<span class="hljs-type">String</span>, <span class="hljs-type">Int</span>]].write(<span class="hljs-type">Map</span>(<span class="hljs-string">"hello"</span> -&gt; <span class="hljs-number">1</span>))
+<span class="hljs-comment">// res45: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "hello" : {</span>
+<span class="hljs-comment">//       "N" : "1"</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+fooSchema.asMap.write(<span class="hljs-type">Map</span>(<span class="hljs-string">"A foo"</span> -&gt; <span class="hljs-type">Foo</span>(<span class="hljs-string">"a"</span>, <span class="hljs-number">1</span>)))
+<span class="hljs-comment">// res46: io.circe.Json = {</span>
+<span class="hljs-comment">//   "M" : {</span>
+<span class="hljs-comment">//     "A foo" : {</span>
+<span class="hljs-comment">//       "M" : {</span>
+<span class="hljs-comment">//         "a" : {</span>
+<span class="hljs-comment">//           "S" : "a"</span>
+<span class="hljs-comment">//         },</span>
+<span class="hljs-comment">//         "b" : {</span>
+<span class="hljs-comment">//           "N" : "1"</span>
+<span class="hljs-comment">//         }</span>
+<span class="hljs-comment">//       }</span>
+<span class="hljs-comment">//     }</span>
+<span class="hljs-comment">//   }</span>
+<span class="hljs-comment">// }</span>
+</code></pre>
+<p></details></p>
+<blockquote>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>If you need to represent a Map whose keys aren't directly
+<code>String</code>, but instead newtypes or enums, just use
+<code>imap</code>/<code>imapErr</code>/<code>xmap</code> on the Map schema.</li>
+</ul>
+</blockquote>
+<h2><a class="anchor" aria-hidden="true" id="byteset-stringset-and-numberset"></a><a href="#byteset-stringset-and-numberset" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ByteSet, StringSet and NumberSet</h2>
+<p>TODO what to do about SS BS and NS?
+NonEmpty vs what scanamo does (puts NULL, can conflict with Option)
+implicit inductive instances on NonEmptySet[String], and NonEmptySet(numeric stuff), with corresponding as* methods
+only on the appropriate schemas. If you have something you wish to represent as NS or SS, e.g. a
+Set of newtypes, use imap appropriately on it (example with string sets?)</p>
+<h2><a class="anchor" aria-hidden="true" id="section-with-expandable-examples-using-for-only"></a><a href="#section-with-expandable-examples-using-for-only" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Section with expandable examples using <code>for</code> only</h2>
+<h2><a class="anchor" aria-hidden="true" id="inspiration"></a><a href="#inspiration" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Inspiration</h2>
+<p>The approach of using <code>GADT</code>s for schemas and free constructions for
+records was pioneered by the
+<a href="https://github.com/nuttycom/xenomorph">xenomorph</a> library, however
+the approach used here is different along at least two axes:</p>
+<ul>
+<li>It focuses on representing data in a specific format
+(AttributeValue) rather than providing a schema to be reused for
+multiple formats. This results in much greater control over the
+data, and a simpler api for users.</li>
+<li>The implementation differs in several aspects including improved
+inference and a more flexible encoding of sums.</li>
+</ul>
+<p>The invariant combinators (<code>imap</code>, <code>imapErr</code>, <code>xmap</code>) and the
+integration of implicit and explicit codecs is influenced by
+<a href="https://github.com/scodec/scodec">scodec</a>.</p>
+</span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/dynosaur/docs/overview"><span class="arrow-prev">← </span><span>Overview</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#setup">Setup</a></li><li><a href="#quick-example">Quick example</a></li><li><a href="#motivation">Motivation</a></li><li><a href="#primitives">Primitives</a></li><li><a href="#bidirectional-mappings">Bidirectional mappings</a></li><li><a href="#records">Records</a><ul class="toc-headings"><li><a href="#implicit-vs-explicit-schemas-in-field">Implicit vs explicit schemas in <code>field</code></a></li><li><a href="#additional-structure">Additional structure</a></li><li><a href="#constant-fields">Constant fields</a></li><li><a href="#case-classes-with-more-than-22-fields">Case classes with more than 22 fields</a></li><li><a href="#optional-fields-nullable-values">Optional fields &amp; nullable values</a></li></ul></li><li><a href="#coproducts">Coproducts</a><ul class="toc-headings"><li><a href="#discriminator-keys">Discriminator keys</a></li><li><a href="#discriminator-field">Discriminator field</a></li></ul></li><li><a href="#sequences-and-maps">Sequences and Maps</a></li><li><a href="#byteset-stringset-and-numberset">ByteSet, StringSet and NumberSet</a></li><li><a href="#section-with-expandable-examples-using-for-only">Section with expandable examples using <code>for</code> only</a></li><li><a href="#inspiration">Inspiration</a></li></ul></nav></div><footer class="nav-footer" id="footer"><hr class="separator"/><section class="copyright">Copyright © 2018-2019 OVO Energy Limited.</section></footer></div></body></html>

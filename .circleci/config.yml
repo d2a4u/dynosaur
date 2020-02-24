@@ -197,31 +197,31 @@ jobs:
         no_output_timeout: 20m
 
 workflows:
-
   build_test_release:
     jobs:
-    - build:
-        filters:
+      - build:
+          filters:
             branches:
-            ignore: gh-pages
+              ignore:
+                - gh-pages
 
-    - unit_test:
-        requires:
-        - build
+      - unit_test:
+          requires:
+            - build
 
-    - integration_test:
-        requires:
-        - build
+      - integration_test:
+          requires:
+            - build
 
-    - tag:
-        requires:
-        - build
-        - unit_test
-        - integration_test
-        filters:
-          branches:
-            only: master
+      - tag:
+          requires:
+            - build
+            - unit_test
+            - integration_test
+          filters:
+            branches:
+              only: master
 
-    - release:
-        requires:
-        - tag
+      - release:
+          requires:
+            - tag

@@ -34,6 +34,11 @@ case class AttributeName(value: String)
 
 case class AttributeRef(path: NonEmptyList[AttributeName])
 
+object AttributeRef {
+  def apply(name: AttributeName): AttributeRef =
+    AttributeRef(NonEmptyList.of(name))
+}
+
 sealed trait AttributeValue {
   def `null`: Option[AttributeValue.NULL.type] = this match {
     case AttributeValue.NULL => AttributeValue.NULL.some

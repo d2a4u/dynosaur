@@ -39,7 +39,7 @@ import com.ovoenergy.comms.aws.common.model._
 import com.ovoenergy.comms.aws.common.headers._
 import com.ovoenergy.comms.aws.common.mediaTypes._
 
-import model._
+import dynosaur.lo.model._
 import codec._
 
 trait DynamoDb[F[_]] {

@@ -1,14 +1,12 @@
 package dynosaur
 
-import cats.effect.{IO, ContextShift}
-
+import cats.effect.{ContextShift, IO}
 import java.time.Instant
-import scala.concurrent.duration._
 
+import scala.concurrent.duration._
 import com.ovoenergy.comms.aws.common.CredentialsProvider
 import com.ovoenergy.comms.aws.common.model._
-
-import model.{AttributeName, AttributeValue}
+import model.{AttributeName, AttributeRef, AttributeValue}
 import lo.DynamoDb
 import lo.model._
 
@@ -136,7 +134,7 @@ class DynamoDbSpec extends IntegrationSpec {
             key = key,
             updateExpression = UpdateExpression("SET #v = :newValue"),
             expressionAttributeNames = Map(
-              ExpressionAlias("#v") -> AttributeName("value")
+              ExpressionAlias("#v") -> AttributeRef(AttributeName("value"))
             ),
             expressionAttributeValues = Map(
               ExpressionPlaceholder(":newValue") -> AttributeValue.S("2")

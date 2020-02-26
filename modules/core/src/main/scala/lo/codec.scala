@@ -18,16 +18,14 @@ package dynosaur
 package lo
 
 import cats.implicits._
-
 import io.circe._
 import io.circe.syntax._
 import io.circe.literal._
 import io.circe.{Decoder, Encoder}
-
 import scodec.bits.ByteVector
-
 import dynosaur.model.{AttributeName, AttributeRef, AttributeValue}
 import model._
+import model.BillingMode._
 
 object codec {
 
@@ -357,7 +355,7 @@ object codec {
     Json.obj("RequestItems" -> request.requestItems.asJson)
   }
 
-  implicit lazy val decodeBatchWriteItemsRequest
+  implicit lazy val decodeBatchWriteItemsResponse
       : Decoder[BatchWriteItemsResponse] = Decoder.instance { hc =>
     implicit val decodeWriteRequest
         : Decoder[BatchWriteItemsRequest.WriteRequest] = {
@@ -403,4 +401,119 @@ object codec {
   def extractM(jso: Json): Json =
     jso.withObject(jso => jso("M").getOrElse(Json.Null))
 
+  implicit val attributeTypeEncoder: Encoder[AttributeType] =
+    Encoder.encodeString.contramap(_.toString)
+
+  implicit val keyTypeEncoder: Encoder[KeyType] =
+    Encoder.encodeString.contramap(_.toString)
+
+  implicit val projectionTypeEncoder: Encoder[ProjectionType] =
+    Encoder.encodeString.contramap(_.value)
+
+  implicit val sseTypeEncoder: Encoder[SseType] =
+    Encoder.encodeString.contramap(_.toString)
+
+  implicit val streamViewTypeEncoder: Encoder[StreamViewType] =
+    Encoder.encodeString.contramap(_.value)
+
+  implicit val provisionedThroughputEncoder: Encoder[ProvisionedThroughput] =
+    Encoder.instance { pt =>
+      Json.obj(
+        "ReadCapacityUnits" -> pt.readCapacityUnits.asJson,
+        "WriteCapacityUnits" -> pt.writeCapacityUnits.asJson
+      )
+    }
+
+  implicit val projectionEncoder: Encoder[Projection] = Encoder.instance(
+    p =>
+      Json.obj(
+        "NonKeyAttributes" -> p.nonKeyAttributes.asJson,
+        "ProjectionType" -> p.projectionType.asJson
+      )
+  )
+
+  implicit val globalSecondaryIndexEncoder: Encoder[GlobalSecondaryIndex] =
+    Encoder.instance(
+      i =>
+        Json.obj(
+          "IndexName" -> Json.fromString(i.indexName),
+          "KeySchema" -> i.keySchema.asJson,
+          "Projection" -> i.projection.asJson,
+          "ProvisionedThroughput" -> i.provisionedThroughput.asJson
+        )
+    )
+
+  implicit val localSecondaryIndexEncoder: Encoder[LocalSecondaryIndex] =
+    Encoder.instance(
+      i =>
+        Json.obj(
+          "IndexName" -> Json.fromString(i.indexName),
+          "KeySchema" -> i.keySchema.asJson,
+          "Projection" -> i.projection.asJson
+        )
+    )
+
+  implicit val sseSpecificationEncoder: Encoder[SseSpecification] =
+    Encoder.instance { ss =>
+      Json.obj(
+        "Enabled" -> Json.fromBoolean(ss.enabled),
+        "KMSMasterKeyId" -> Json.fromString(ss.kmsMasterKeyId),
+        "SSEType" -> ss.sseType.asJson
+      )
+    }
+
+  implicit val streamSpecificationEncoder: Encoder[StreamSpecification] =
+    Encoder.instance { ss =>
+      Json.obj(
+        "StreamEnabled" -> Json.fromBoolean(ss.enabled),
+        "StreamViewType" -> ss.viewType.asJson
+      )
+    }
+
+  implicit val tableStatusDecoder: Decoder[TableStatus] =
+    Decoder.decodeString.emap(TableStatus.fromString)
+
+  implicit lazy val encoderCreateTableRequest: Encoder[CreateTableRequest] =
+    Encoder.instance { request =>
+      val jsMap: Map[String, Json] = Map(
+        "TableName" -> request.tableName.asJson,
+        "AttributeDefinitions" -> request.attributeDefinitions.asJson,
+        "BillingMode" -> request.billingMode.value.asJson,
+        "KeySchema" -> request.keySchema.asJson,
+        "GlobalSecondaryIndexes" -> request.globalSecondaryIndexes.asJson,
+        "LocalSecondaryIndexes" -> request.localSecondaryIndexes.asJson,
+        "ProvisionedThroughput" -> {
+          request.billingMode match {
+            case Provisioned(tp) =>
+              tp.asJson
+            case _ =>
+              Json.Null
+          }
+        },
+        "SSESpecification" -> request.sseSpecification.asJson,
+        "StreamSpecification" -> request.streamSpecification.asJson,
+        "Tags" -> request.tags.asJson
+      )
+
+      Json.obj(jsMap.toSeq: _*)
+    }
+
+  implicit lazy val encoderDescribeTableRequest: Encoder[DescribeTableRequest] =
+    Encoder.instance { request =>
+      Json.obj("TableName" -> request.tableName.asJson)
+    }
+
+  implicit lazy val encoderDeleteTableRequest: Encoder[DeleteTableRequest] =
+    Encoder.instance { request =>
+      Json.obj("TableName" -> request.tableName.asJson)
+    }
+
+  implicit lazy val decoderTableStatusResponse: Decoder[TableStatusResponse] =
+    Decoder.instance { hc =>
+      for {
+        arn <- hc.downField("TableDescription").get[String]("TableArn")
+        id <- hc.downField("TableDescription").get[String]("TableId")
+        stt <- hc.downField("TableDescription").get[TableStatus]("TableStatus")
+      } yield TableStatusResponse(arn, id, stt)
+    }
 }

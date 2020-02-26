@@ -18,9 +18,10 @@ package dynosaur
 package lo
 package model
 
-import dynosaur.model.{AttributeRef, AttributeValue}
-
+import dynosaur.model._
 import cats.implicits._
+import org.http4s.Response
+
 import scala.reflect.macros.whitebox
 
 case class TableName(value: String)
@@ -202,6 +203,192 @@ case class BatchWriteItemsResponse(
     ]]
 )
 
+sealed trait AttributeType
+
+object AttributeType {
+  case object S extends AttributeType
+  case object N extends AttributeType
+  case object B extends AttributeType
+  case object BOOL extends AttributeType
+  case object SS extends AttributeType
+  case object NS extends AttributeType
+  case object BS extends AttributeType
+}
+
+sealed trait KeyType
+
+object KeyType {
+  case object HASH extends KeyType
+  case object RANGE extends KeyType
+}
+
+sealed trait BillingMode {
+  def value: String
+}
+
+object BillingMode {
+  case class Provisioned(throughput: ProvisionedThroughput)
+      extends BillingMode {
+    val value = "PROVISIONED"
+  }
+  case object PayPerRequest extends BillingMode {
+    val value = "PAY_PER_REQUEST"
+  }
+}
+
+case class ProvisionedThroughput(
+    readCapacityUnits: Int,
+    writeCapacityUnits: Int
+)
+
+case class GlobalSecondaryIndex(
+    indexName: String,
+    keySchema: Map[AttributeName, KeyType],
+    projection: Projection,
+    provisionedThroughput: ProvisionedThroughput
+)
+
+case class LocalSecondaryIndex(
+    indexName: String,
+    keySchema: Map[AttributeName, KeyType],
+    projection: Projection
+)
+
+sealed trait ProjectionType {
+  def value: String
+}
+
+object ProjectionType {
+  case object KeyOnly extends ProjectionType {
+    val value = "KEYS_ONLY"
+  }
+  case object Include extends ProjectionType {
+    val value = "INCLUDE"
+  }
+  case object All extends ProjectionType {
+    val value = "ALL"
+  }
+}
+
+case class Projection(
+    nonKeyAttributes: Set[AttributeName],
+    projectionType: ProjectionType
+)
+
+sealed trait SseType
+object SseType {
+  case object AES256 extends SseType
+  case object KMS extends SseType
+}
+
+case class SseSpecification(
+    enabled: Boolean,
+    kmsMasterKeyId: String,
+    sseType: SseType
+)
+
+sealed trait StreamViewType {
+  def value: String
+}
+
+object StreamViewType {
+  case object KeysOnly extends StreamViewType {
+    val value = "KEYS_ONLY"
+  }
+  case object NewImage extends StreamViewType {
+    val value = "NEW_IMAGE"
+  }
+  case object OldImage extends StreamViewType {
+    val value = "OLD_IMAGE"
+  }
+  case object NewAndOldImages extends StreamViewType {
+    val value = "NEW_AND_OLD_IMAGES"
+  }
+}
+
+case class StreamSpecification(
+    enabled: Boolean,
+    viewType: StreamViewType
+)
+
+sealed trait TableStatus {
+  def value: String
+}
+
+object TableStatus {
+  case object Creating extends TableStatus {
+    val value = "CREATING"
+  }
+  case object Updating extends TableStatus {
+    val value = "UPDATING"
+  }
+  case object Deleting extends TableStatus {
+    val value = "DELETING"
+  }
+  case object Active extends TableStatus {
+    val value = "ACTIVE"
+  }
+  case object InaccessibleEncryptionCredentials extends TableStatus {
+    val value = "INACCESSIBLE_ENCRYPTION_CREDENTIALS"
+  }
+  case object Archiving extends TableStatus {
+    val value = "ARCHIVING"
+  }
+  case object Archived extends TableStatus {
+    val value = "ARCHIVED"
+  }
+
+  def fromString(str: String): Either[String, TableStatus] =
+    str match {
+      case Creating.value => Creating.asRight
+      case Updating.value => Updating.asRight
+      case Deleting.value => Deleting.asRight
+      case Active.value => Active.asRight
+      case InaccessibleEncryptionCredentials.value =>
+        InaccessibleEncryptionCredentials.asRight
+      case Archiving.value => Archiving.asRight
+      case Archived.value => Archived.asRight
+      case s => Left(s"Unknown status $s")
+    }
+}
+
+case class CreateTableRequest(
+    tableName: TableName,
+    attributeDefinitions: Map[AttributeName, AttributeType],
+    keySchema: Map[AttributeName, KeyType],
+    billingMode: BillingMode,
+    globalSecondaryIndexes: List[GlobalSecondaryIndex] = List.empty,
+    localSecondaryIndexes: List[GlobalSecondaryIndex] = List.empty,
+    sseSpecification: Option[SseSpecification] = None,
+    streamSpecification: Option[StreamSpecification] = None,
+    tags: Map[String, String] = Map.empty
+)
+
+case class DescribeTableRequest(
+    tableName: TableName
+)
+
+case class DeleteTableRequest(
+    tableName: TableName
+)
+
+// Shared model for response of CreateTableRequest and DescribeTableRequest
+case class TableStatusResponse(
+    tableArn: String,
+    tableId: String,
+    tableStatus: TableStatus
+)
+
 // TODO Model all the DynamoDb errors
+case class DynamoHttpError(code: Int, error: DynamoDbError)
+    extends Exception(
+      s"code: $code, message: ${error.message}"
+    )
+
+object DynamoHttpError {
+  def apply[F[_]](resp: Response[F], error: DynamoDbError): DynamoHttpError =
+    DynamoHttpError(resp.status.code, error)
+}
+
 case class DynamoDbError(message: String, retriable: Boolean = false)
     extends Exception(message)

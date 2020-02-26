@@ -55,6 +55,12 @@ trait DynamoDb[F[_]] {
   def batchWriteItems(
       request: BatchWriteItemsRequest
   ): F[BatchWriteItemsResponse]
+
+  def createTable(request: CreateTableRequest): F[TableStatusResponse]
+
+  def describeTable(request: DescribeTableRequest): F[TableStatusResponse]
+
+  def deleteTable(request: DeleteTableRequest): F[TableStatusResponse]
 }
 
 object DynamoDb {
@@ -113,7 +119,10 @@ object DynamoDb {
           endpoint <- baseEndpoint
           request <- POST(request, endpoint / "")
           result <- signedClient.expectOr[Res](request) { response =>
-            response.as[DynamoDbError].widen[Throwable]
+            response
+              .as[DynamoDbError]
+              .map(DynamoHttpError(response, _))
+              .widen[Throwable]
           }
         } yield result
       }
@@ -133,6 +142,14 @@ object DynamoDb {
       def batchWriteItems(request: BatchWriteItemsRequest) =
         exec(request)
 
+      def createTable(request: CreateTableRequest) =
+        exec(request)
+
+      def describeTable(request: DescribeTableRequest) =
+        exec(request)
+
+      def deleteTable(request: DeleteTableRequest) =
+        exec(request)
     }
   }
 

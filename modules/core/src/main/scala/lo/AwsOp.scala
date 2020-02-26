@@ -45,4 +45,13 @@ object AwsOp {
   implicit val batchWrite
       : AwsOp[BatchWriteItemsRequest, BatchWriteItemsResponse] =
     instance("DynamoDB_20120810.BatchWriteItem")
+
+  implicit val createTable: AwsOp[CreateTableRequest, TableStatusResponse] =
+    instance("DynamoDB_20120810.CreateTable")
+
+  implicit val describeTable: AwsOp[DescribeTableRequest, TableStatusResponse] =
+    instance("DynamoDB_20120810.DescribeTable")
+
+  implicit val deleteTable: AwsOp[DeleteTableRequest, TableStatusResponse] =
+    instance("DynamoDB_20120810.DeleteTable")
 }

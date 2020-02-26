@@ -91,6 +91,7 @@ sealed trait AttributeValue {
   }
 
 }
+
 object AttributeValue {
   case object NULL extends AttributeValue
   case class S(value: String) extends AttributeValue
@@ -145,5 +146,5 @@ object AttributeValue {
   def l(values: AttributeValue*): AttributeValue =
     AttributeValue.L(values.toList)
   def l(values: List[AttributeValue]): AttributeValue =
-    AttributeValue.L(values.toList)
+    AttributeValue.L(values)
 }

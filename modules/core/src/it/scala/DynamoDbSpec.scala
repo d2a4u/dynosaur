@@ -1,6 +1,6 @@
 package dynosaur
 
-import cats.effect.{ContextShift, IO}
+import cats.effect.{ContextShift, IO, Timer}
 import java.time.Instant
 
 import scala.concurrent.duration._
@@ -9,12 +9,52 @@ import com.ovoenergy.comms.aws.common.model._
 import model.{AttributeName, AttributeRef, AttributeValue}
 import lo.DynamoDb
 import lo.model._
+import org.scalatest.BeforeAndAfterAll
 
-class DynamoDbSpec extends IntegrationSpec {
+class DynamoDbSpec extends IntegrationSpec with BeforeAndAfterAll {
 
   implicit val patience: PatienceConfig = PatienceConfig(scaled(30.seconds), 500.millis)
-  implicit val ctx: ContextShift[IO] = IO.contextShift(scala.concurrent.ExecutionContext.global) 
+  implicit val ctx: ContextShift[IO] = IO.contextShift(scala.concurrent.ExecutionContext.global)
+  implicit val timer: Timer[IO] = IO.timer(scala.concurrent.ExecutionContext.global)
 
+  val tableName = TableName(s"dynosaur-it-test-${Instant.now.toEpochMilli}")
+
+  override def beforeAll(): Unit = {
+    val active = withDynamoDb { dynamoDb =>
+      val creation = dynamoDb.createTable(
+        CreateTableRequest(
+          tableName,
+          Map(AttributeName("id") -> AttributeType.S),
+          Map(AttributeName("id") -> KeyType.HASH),
+          BillingMode.PayPerRequest
+        )
+      )
+      val describe =
+        fs2.Stream
+          .repeatEval(dynamoDb.describeTable(DescribeTableRequest(tableName)))
+          .metered(1.second)
+          .takeWhile(_.tableStatus == TableStatus.Active)
+          .handleErrorWith(_ => fs2.Stream(TableStatusResponse("", "", TableStatus.Creating)))
+          .interruptAfter(60.seconds)
+          .compile
+          .drain
+
+      for {
+        _ <- creation
+        _ <- describe
+      } yield ()
+    }
+    active.unsafeRunSync()
+    super.beforeAll()
+  }
+
+  override def afterAll(): Unit = {
+    val deletion = withDynamoDb { dynamoDb =>
+       dynamoDb.deleteTable(DeleteTableRequest(tableName))
+    }
+    deletion.unsafeRunSync()
+    super.afterAll()
+  }
 
   "DynamoDb" should {
     "write an item" in {
@@ -22,7 +62,7 @@ class DynamoDbSpec extends IntegrationSpec {
         for {
           now <- IO(Instant.now).map(_.toEpochMilli)
           response <- dynamoDb.putItem(PutItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             item = AttributeValue.M(Map(
               AttributeName("id")->AttributeValue.S("test-1"),
               AttributeName("date")->AttributeValue.N(now.toString)   
@@ -47,11 +87,11 @@ class DynamoDbSpec extends IntegrationSpec {
             AttributeName("value")->AttributeValue.S("I am the new one")
           ))
           _ <- dynamoDb.putItem(PutItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             item = oldItem
           ))
           response <- dynamoDb.putItem(PutItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             item = newItem,
             returnValues = ReturnValues.AllOld
           ))
@@ -69,11 +109,11 @@ class DynamoDbSpec extends IntegrationSpec {
             AttributeName("date")->AttributeValue.N(now.toString)   
           ))
           _ <- dynamoDb.putItem(PutItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             item = item
           ))
           response <- dynamoDb.getItem(GetItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             key = AttributeValue.M(Map(
               AttributeName("id")->AttributeValue.S("test-1"),
               AttributeName("date")->AttributeValue.N(now.toString)   
@@ -94,15 +134,15 @@ class DynamoDbSpec extends IntegrationSpec {
             AttributeName("date")->AttributeValue.N(now.toString)   
           ))
           _ <- dynamoDb.putItem(PutItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             item = item
           ))
           _ <- dynamoDb.deleteItem(DeleteItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             key = item
           ))
           response <- dynamoDb.getItem(GetItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             key = AttributeValue.M(Map(
               AttributeName("id")->AttributeValue.S("test-1"),
               AttributeName("date")->AttributeValue.N(now.toString)   
@@ -126,11 +166,11 @@ class DynamoDbSpec extends IntegrationSpec {
             AttributeName("value")->AttributeValue.S("1")  
           ))
           _ <- dynamoDb.putItem(PutItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             item = item
           ))
           _ <- dynamoDb.updateItem(UpdateItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             key = key,
             updateExpression = UpdateExpression("SET #v = :newValue"),
             expressionAttributeNames = Map(
@@ -141,7 +181,7 @@ class DynamoDbSpec extends IntegrationSpec {
             )
           ))
           response <- dynamoDb.getItem(GetItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             key = key,
             consistent = true
           ))
@@ -158,7 +198,7 @@ class DynamoDbSpec extends IntegrationSpec {
           response <- dynamoDb.batchWriteItems(
             BatchWriteItemsRequest(
               requestItems = Map(
-                TableName("comms-aws-test") -> List(
+                tableName -> List(
                   BatchWriteItemsRequest.PutRequest(
                     AttributeValue.M(
                       Map(
@@ -195,13 +235,13 @@ class DynamoDbSpec extends IntegrationSpec {
             AttributeName("value")->AttributeValue.S("1")  
           ))
           _ <- dynamoDb.putItem(PutItemRequest(
-            tableName = TableName("comms-aws-test"), 
+            tableName = tableName, 
             item = item
           ))
           response <- dynamoDb.batchWriteItems(
             BatchWriteItemsRequest(
               requestItems = Map(
-                TableName("comms-aws-test") -> List(
+                tableName -> List(
                   BatchWriteItemsRequest.DeleteRequest(
                     AttributeValue.M(
                       Map(
@@ -233,7 +273,7 @@ class DynamoDbSpec extends IntegrationSpec {
           response <- dynamoDb.batchWriteItems(
             BatchWriteItemsRequest(
               requestItems = Map(
-                TableName("comms-aws-test") -> List(
+                tableName -> List(
                   BatchWriteItemsRequest.DeleteRequest(
                     AttributeValue.M(
                       Map(
@@ -271,7 +311,7 @@ class DynamoDbSpec extends IntegrationSpec {
           response <- dynamoDb.batchWriteItems(
             BatchWriteItemsRequest(
               requestItems = Map(
-                TableName("comms-aws-test") -> ids.map(id => 
+                tableName -> ids.map(id => 
                   BatchWriteItemsRequest.PutRequest(
                     AttributeValue.M(
                       Map(
@@ -285,8 +325,8 @@ class DynamoDbSpec extends IntegrationSpec {
               )
             )
           )
-        } yield response
-      }.futureValue.unprocessedItems(TableName("comms-aws-test")) should not be empty
+        } yield response.unprocessedItems(tableName)
+      }.futureValue should not be empty
     } 
   }
 
